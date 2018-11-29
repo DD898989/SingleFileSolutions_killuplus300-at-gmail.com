@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <stdio.h>
+#include <fstream>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -595,14 +596,63 @@ int myComp(const void* a, const void* b)
 	return a1->weight > b1->weight;
 }
 
+
+void printResult(Edge* result,int E)
+{
+	ofstream  myfile;
+	myfile.open("D:\\MyLog.txt", fstream::app);
+	//myfile<<"ID"<<"\t"<<"E"<<"\t"<<"edge"<<"\t"<<"V"<<endl;
+	
+	myfile<<"----------------------------\n";
+	for(int i=0;i<E;i++)
+	{
+		myfile<<i<<"\t";
+		myfile<<result[i].src<<"\t";
+		myfile<<result[i].dest<<"\t";
+		myfile<<result[i].weight<<"\t";
+		
+
+		myfile<<endl;
+	}
+	myfile.close();
+}
+
+void printGraph(struct Graph* graph)                                           //for debug
+{
+	ofstream  myfile;
+	myfile.open("D:\\MyLog.txt", fstream::app);
+	//myfile<<"ID"<<"\t"<<"E"<<"\t"<<"edge"<<"\t"<<"V"<<endl;
+
+
+	//myfile<<graph->E<<"\t";
+	//myfile<<graph->V<<"\t";
+	//myfile<<endl;
+	
+	myfile<<"----------------------------\n";
+	for(int i=0;i<graph->E;i++)
+	{
+		myfile<<i<<"\t";
+		myfile<<graph->edge->src<<"\t";
+		myfile<<graph->edge->dest<<"\t";
+		myfile<<graph->edge->weight<<"\t";
+		
+		graph->edge++;
+
+		myfile<<endl;
+	}
+	graph->edge-=graph->E;
+	myfile.close();
+}
+
+
 // The main function to construct MST using Kruskal's algorithm
 void KruskalMST(struct Graph* graph)
 {
+	printGraph(graph);
+
 	int V = graph->V;
 	
-	
-	/*原來*///Edge result[V]; // Tnis will store the resultant MST
-	/*甘改*/Edge* result = new Edge[V];
+	Edge* result = new Edge[V];
 
 
 	int e = 0; // An index variable, used for result[]
@@ -613,10 +663,10 @@ void KruskalMST(struct Graph* graph)
 	// change the given graph, we can create a copy of
 	// array of edges
 	qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);
+	printGraph(graph);
 
 	// Allocate memory for creating V ssubsets
-	struct subset *subsets =
-		(struct subset*) malloc( V * sizeof(struct subset) );
+	struct subset *subsets = (struct subset*) malloc( V * sizeof(struct subset) );
 
 	// Create V subsets with single elements
 	for (int v = 0; v < V; ++v)
@@ -641,6 +691,7 @@ void KruskalMST(struct Graph* graph)
 		if (x != y)
 		{
 			result[e++] = next_edge;
+			printResult(result,e);
 			Union(subsets, x, y);
 		}
 		// Else discard the next_edge
@@ -648,10 +699,10 @@ void KruskalMST(struct Graph* graph)
 
 	// print the contents of result[] to display the
 	// built MST
-	printf("Following are the edges in the constructed MST\n");
+	printf("保留以下%d條線,weight sum是...自己加,在==後面\n",e);
 	for (i = 0; i < e; ++i)
-		printf("%d -- %d == %d\n", result[i].src, result[i].dest,
-												result[i].weight);
+		printf("%d -- %d == %d\n", result[i].src, result[i].dest,result[i].weight);
+
 	return;
 }
 
@@ -660,20 +711,20 @@ int main9()
 {
 	/* Let us create following weighted graph
 			10
-		0--------1
-		| \	 |
-	6| 5\ |15
-		|	 \ |
-		2--------3
-			4	 */
+		0--------1     這橫條是edge[0]
+		|  \	 |
+	   6|   5\   |15	最左直條是edge[1]   斜條是edge[2]   最右直條是edge[3]
+		|	   \ |
+		2--------3     這橫條是edge[4]
+			4												*/
+
 	int V = 4; // Number of vertices in graph
 	int E = 5; // Number of edges in graph
 	struct Graph* graph = createGraph(V, E);
 
-
 	// add edge 0-1
-	graph->edge[0].src = 0;
-	graph->edge[0].dest = 1;
+	graph->edge[0].src = 0;		//src是V起點
+	graph->edge[0].dest = 1;	//dest是V終點
 	graph->edge[0].weight = 10;
 
 	// add edge 0-2
