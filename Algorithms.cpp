@@ -57,55 +57,104 @@ int main1()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------binarysearch.cpp
-int binarysearch(int l,int a[],int r,int value)
+
+class IterativeBnySear
 {
-    int mid;
-    if(r>l)
-    {
-        mid=floor((float)(l+r)/2);
-		
-		cout<<"l:"<<l<<endl;
-		cout<<"r:"<<r<<endl;
-		cout<<"中間:"<<mid<<endl;
-
-        if(a[mid]==value)
+public:
+	static vector<int> Search(int* array, int length, int num)
+	{
+		int left = 0, right = length - 1;
+		int middle = (right + left) / 2;
+		vector<int> v(2);
+		while (left <= right)
 		{
-			cout<<"找到位子:"<<mid<<endl;
-			return -1;
+			v[0] = middle; v[1] = middle;
+			if (array[middle] == num)
+				return v; // found
+
+			if (array[middle] > num)
+				right = middle - 1;
+			else
+				left = middle + 1;
+
+			middle = (right + left) / 2;
+		}
+		v[0] = right; v[1] = left;
+		return v;//not found
+	}
+};
+
+class DivideAndConquer
+{
+    public:
+        static vector<int> Search(int* array, int length, int num)
+		{
+			return Search(array, num, 0, length - 1);
 		}
 
-
-        if(a[mid]>value)
+		static vector<int> Search(int* array, int num, int left, int right)
 		{
-			return binarysearch(l,a,mid,value);
-		}
+			vector<int> v(2);
 
-        if(a[mid]<value)
-		{
-			return binarysearch(mid,a,r,value);
+			int middle = (right + left) / 2;
+
+			v[0] = right; v[1] = left;
+			if (left > right)
+				return v; //not found
+
+			v[0] = middle; v[1] = middle;
+			if (array[middle] == num)
+				return v; // found
+
+			if (array[middle] > num)
+				return Search(array, num, left, middle - 1);
+
+			return Search(array, num, middle + 1, right);
 		}
-    }
-}
+};
+
+
 int main2()
-{
-    int arr[102],i,x,size,result;
+{   //            0   1   2 3 4 5 6 7  8    //index
+	int arr[] = { 1,  3,  5,6,7,8,9,10,11 };//must be sorted array
 
-    cout<<"please enter the size";
-    cin>>size;
+	vector<int> v;
 
-    cout<<"Enter the array(必須是排序好的)";
-    for(i=0;i<size;i++)
-		cin>>arr[i];
+	v  = IterativeBnySear::Search(arr,9,0);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,0);
+	cout<<v[0]<<" "<<v[1]<<endl;
 
-    cout<<"Enter the Value";
-	cin>>x;
+	v  = IterativeBnySear::Search(arr,9,1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,9,2);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,2);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,9,3);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,3);
+	cout<<v[0]<<" "<<v[1]<<endl;
 
-    result=binarysearch(0,arr,size,x);
+	v  = IterativeBnySear::Search(arr,9,4);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,4);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,9,11);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,11);
+	cout<<v[0]<<" "<<v[1]<<endl;
 
-    if(result==-1)
-		cout<<"Value Found";
-    else
-		cout<<"Value Not Found";
+	v  = IterativeBnySear::Search(arr,9,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,9,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
 
 	return 0;
 }
