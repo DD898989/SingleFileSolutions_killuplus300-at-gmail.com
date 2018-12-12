@@ -241,55 +241,117 @@ int main3()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------quick_sort.cpp
 
-static   int n;
-void quickSort(int arr[], int left, int right) {
-      int i = left, j = right;
-      int tmp;
-      int pivot = arr[(left + right) / 2];
+static int nNum;
+/* Function to print an array */
+void printArray2(int arr[], int size) 
+{ 
+    int i; 
+    for (i=0; i < size; i++) 
+        printf("%d ", arr[i]); 
+    printf("\n"); 
+} 
 
-      /* partition */
-      while (i <= j) 
-	  {
-            while (arr[i] < pivot)
-                  i++;
-            while (arr[j] > pivot)
-                  j--;
-            if (i <= j) 
-			{
-                  tmp = arr[i];
-                  arr[i] = arr[j];
-                  arr[j] = tmp;
-                  i++;
-                  j--;
-            }
 
-		for(i=0;i<8;i++)
-			cout<<arr[i]<<" ";
-		cout<<endl;
+void swap(int* a, int* b) 
+{ 
+    int t = *a; 
+    *a = *b; 
+    *b = t; 
+} 
+  
+/* This function takes last element as pivot, places 
+   the pivot element at its correct position in sorted 
+    array, and places all smaller (smaller than pivot) 
+   to left of pivot and all greater elements to right 
+   of pivot */
+int partition (int arr[], int low, int high) 
+{ 
+    int pivot = arr[high];    // pivot 
+	cout<<"pivot:"<<pivot<<endl;
+    int i = (low - 1);  // Index of smaller element 
+  
+    for (int j = low; j <= high- 1; j++) 
+    { 
+        // If current element is smaller than or 
+        // equal to pivot 
+        if (arr[j] <= pivot) 
+        { 
+            i++;    // increment index of smaller element 
+            swap(&arr[i], &arr[j]); 
+			printArray2(arr, nNum); 
+        } 
+    } 
+    swap(&arr[i + 1], &arr[high]); 
+    return (i + 1); 
+} 
+  
+/* The main function that implements QuickSort 
+ arr[] --> Array to be sorted, 
+  low  --> Starting index, 
+  high  --> Ending index */
+void quickSort(int arr[], int low, int high) 
+{ 
+    if (low < high) 
+    { 
+        /* pi is partitioning index, arr[p] is now 
+           at right place */
+        int pi = partition(arr, low, high); 
+  
+        // Separately sort elements before 
+        // partition and after partition 
+        quickSort(arr, low, pi - 1); 
+        quickSort(arr, pi + 1, high); 
+    } 
+} 
+  
+  
+// Driver program to test above functions 
+int main() 
+{ 
+    int arr[] = {10,80,30,90,40,50,70};
 
-      };
 
-      /* recursion */
-      if (left < j)
-            quickSort(arr, left, j);
-      if (i < right)
-            quickSort(arr, i, right);
-}
+	//pivot:70
+	//10 80 30 90 40 50 70
+	//10 30 80 90 40 50 70
+	//10 30 40 90 80 50 70
+	//10 30 40 50 80 90 70
+	//pivot:50
+	//10 30 40 50 70 90 80
+	//10 30 40 50 70 90 80
+	//10 30 40 50 70 90 80
+	//pivot:40
+	//10 30 40 50 70 90 80
+	//10 30 40 50 70 90 80
+	//pivot:30
+	//10 30 40 50 70 90 80
+	//pivot:80
+	//Sorted array:
+	//10 30 40 50 70 80 90
 
-int main4()
-{
-    int a[] = {10,80,30,90,40,50,70};
-	n = sizeof(a)/sizeof(a[0])+1;
-    int i,left=0;
-    int right=n-1;
+	//           {10 80 30 90 40 50 "70"}
+	//                 /                \
+	//        {10 30 40 "50"}        {90 "80"}
+	//             /      \          /      \
+	//     {10 30 "40"}    { }      { }    {90}
+	//      /        \         
+	//  {10 "30"}    { }
+	//   /   \
+	// {10}  { }
 
-    quickSort(a,left,right);
 
-    for(i=1;i<n;i++)
-        cout<<a[i]<<" ";
-	
-	return 0;
-}
+
+
+    nNum = sizeof(arr)/sizeof(arr[0]); 
+    quickSort(arr, 0, nNum-1); 
+    printf("Sorted array: \n"); 
+    printArray2(arr, nNum); 
+    return 0; 
+} 
+
+
+
+
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
