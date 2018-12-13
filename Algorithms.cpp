@@ -1034,27 +1034,49 @@ int graph[V][V] = {{0, 4, 0, 0, 0, 0, 0, 8, 0},
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------Bucket Sort.cpp
 // Function to sort arr[] of size n using bucket sort
-void bucketSort(float arr[], int n)
+
+
+int bucketN;
+
+void PrintBucket(vector< vector<float>> b)
+{
+    for (int i=0; i<bucketN; i++)
+	{
+		for(int j=0; j<b[i].size(); j++)
+		{
+			cout<<b[i][j]<<"  "<<endl;
+		}
+		cout<<endl;
+	}
+}
+
+
+void bucketSort(float arr[])
 {
     // 1) Create n empty buckets
 	vector< vector<float>> b;
-	b.resize(n);
+	b.resize(bucketN);
 
 
     // 2) Put array elements in different buckets
-    for (int i=0; i<n; i++)
+    for (int i=0; i<bucketN; i++)
     {
-       int bi = n*arr[i]; // Index in bucket
+       int bi = bucketN*arr[i]; // Index in bucket
        b[bi].push_back(arr[i]);
     }
+
+	PrintBucket(b);
  
     // 3) Sort individual buckets
-    for (int i=0; i<n; i++)
+    for (int i=0; i<bucketN; i++)
        sort(b[i].begin(), b[i].end());
  
+
+	PrintBucket(b);
+
     // 4) Concatenate all buckets into arr[]
     int index = 0;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < bucketN; i++)
         for (int j = 0; j < b[i].size(); j++)
           arr[index++] = b[i][j];
 }
@@ -1062,12 +1084,12 @@ void bucketSort(float arr[], int n)
 /* Driver program to test above funtion */
 int main11()
 {
-    float arr[] = {0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434};
-    int n = sizeof(arr)/sizeof(arr[0]);
-    bucketSort(arr, n);
+    float arr[] = {0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434, 0.1648, 0.4855, 0.1395, 0.7846};
+    bucketN = sizeof(arr)/sizeof(arr[0]);
+    bucketSort(arr);
  
     cout << "Sorted array is \n";
-    for (int i=0; i<n; i++)
+    for (int i=0; i<bucketN; i++)
        cout << arr[i] << " ";
     return 0;
 }
