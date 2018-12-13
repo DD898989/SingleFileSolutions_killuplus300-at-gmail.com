@@ -116,40 +116,52 @@ int main2()
 	int arr[] = { 1,  3,  5,6,7,8,9,10,11 };//must be sorted array
 
 	vector<int> v;
+    int n = sizeof(arr)/sizeof(arr[0]); 
+	
 
-	v  = IterativeBnySear::Search(arr,9,0);
+	v  = IterativeBnySear::Search(arr,n,-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,0);
+	v  = DivideAndConquer::Search(arr,n,-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,9,1);
+	v  = IterativeBnySear::Search(arr,n,0);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,1);
+	v  = DivideAndConquer::Search(arr,n,0);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+	v  = IterativeBnySear::Search(arr,n,1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,n,1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
-	v  = IterativeBnySear::Search(arr,9,2);
+	v  = IterativeBnySear::Search(arr,n,2);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,2);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,9,3);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,3);
-	cout<<v[0]<<" "<<v[1]<<endl;
-
-	v  = IterativeBnySear::Search(arr,9,4);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,4);
+	v  = DivideAndConquer::Search(arr,n,2);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
-	v  = IterativeBnySear::Search(arr,9,11);
+	v  = IterativeBnySear::Search(arr,n,3);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,11);
+	v  = DivideAndConquer::Search(arr,n,3);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,9,12);
+	v  = IterativeBnySear::Search(arr,n,4);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,9,12);
+	v  = DivideAndConquer::Search(arr,n,4);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,n,11);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,n,11);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+	v  = IterativeBnySear::Search(arr,n,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,n,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,n,13);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,n,13);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 
