@@ -84,11 +84,6 @@ public:
 class DivideAndConquer
 {
     public:
-        static vector<int> Search(int* array, int length, int num)
-		{
-			return Search(array, num, 0, length - 1);
-		}
-
 		static vector<int> Search(int* array, int num, int left, int right)
 		{
 			vector<int> v(2);
@@ -121,47 +116,47 @@ int main2()
 
 	v  = IterativeBnySear::Search(arr,n,-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,-1);
+	v  = DivideAndConquer::Search(arr,  -1,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 	v  = IterativeBnySear::Search(arr,n,0);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,0);
+	v  = DivideAndConquer::Search(arr,  0,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 	v  = IterativeBnySear::Search(arr,n,1);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,1);
+	v  = DivideAndConquer::Search(arr,  1,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
 	v  = IterativeBnySear::Search(arr,n,2);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,2);
+	v  = DivideAndConquer::Search(arr,  2,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
 	v  = IterativeBnySear::Search(arr,n,3);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,3);
+	v  = DivideAndConquer::Search(arr,  3,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 	v  = IterativeBnySear::Search(arr,n,4);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,4);
+	v  = DivideAndConquer::Search(arr,  4,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
 	v  = IterativeBnySear::Search(arr,n,11);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,11);
+	v  = DivideAndConquer::Search(arr,  11,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 	v  = IterativeBnySear::Search(arr,n,12);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,12);
+	v  = DivideAndConquer::Search(arr,  12,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
 	v  = IterativeBnySear::Search(arr,n,13);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,n,13);
+	v  = DivideAndConquer::Search(arr,  13,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 
