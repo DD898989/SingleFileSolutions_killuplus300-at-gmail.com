@@ -306,7 +306,7 @@ void quickSort(int arr[], int low, int high)
   
   
 // Driver program to test above functions 
-int main() 
+int main4() 
 { 
     int arr[] = {10,80,30,90,40,50,70};
 
@@ -428,6 +428,12 @@ bool solveNQ()
 // Main
 int main5()
 {
+	//西洋棋為8x8棋盤  皇后走法跟象棋的車一樣  此題為如何在西洋棋盤上放8隻皇后，彼此無法直接一步吃掉其他皇后
+	//有92個互不相同的解。如果將旋轉和對稱的解歸為一種的話，則一共有12個獨立解
+	//下表給出了n皇后問題的解的個數包括獨立解U，現在還沒有已知公式可以對n計算n皇后問題的解的個數
+	//	n	1	2	3	4	5	6	7	8	9	10	11		12		13		14	..
+	//  U	1	0	0	1	2	1	6	12	46	92	341		1,787	9,233	45,752	..
+	//  D	1	0	0	2	10	4	40	92	352	724	2,680	14,200	73,712	365,596	..
     solveNQ();
     return 0;
 }
@@ -520,6 +526,12 @@ void printArray(int A[], int size)
 /* Driver program to test above functions */
 int main6()
 {
+	//Merge Sort屬於Divide and Conquer演算法
+	//https://upload.wikimedia.org/wikipedia/commons/e/e6/Merge_sort_algorithm_diagram.svg
+	//https://www.geeksforgeeks.org/wp-content/uploads/Merge-Sort-Tutorial.png
+	//https://4.bp.blogspot.com/-OX9zUXAYHV0/W9VNPU_Pi-I/AAAAAAAEGjo/jxn3aUfCpwIePjjg4udNiO8kopQr01v5gCLcBGAs/s1600/2018_10_28_MergeSort.png
+	//https://www.baeldung.com/wp-content/uploads/2018/09/mergesort1.png
+
     int arr[] = {12, 11, 13, 5, 6, 7};
     int arr_size = sizeof(arr)/sizeof(arr[0]);
 
@@ -538,6 +550,9 @@ int main6()
 //-------------------------------------------------------------------------------------------------------------------------------------Insertion Sort.cpp
 int main7()
 {
+	//https://cdncontribute.geeksforgeeks.org/wp-content/uploads/insertionsort.png
+	//https://cdncontribute.geeksforgeeks.org/wp-content/uploads/insertion_sort-recursion.png
+	//https://www.w3resource.com/w3r_images/insertion-sort.png
     int arr[100],num,temp,j;
     cout << "Enter the number of elements" << endl;
     cin >> num;
@@ -566,6 +581,45 @@ int main7()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------heapsort.cpp
+
+/* A utility function to print array of size n */
+void printArray1(int arr[], int n)
+{
+    for (int i=0; i<n; ++i)
+        cout << arr[i] << " ";
+    cout << "\n";
+}
+
+bool isPowerOfTwo(int n) 
+{ 
+  if (n == 0) 
+    return 0;
+
+
+  while (n != 1) 
+  { 
+      if (n%2 != 0) 
+         return 0; 
+      n = n/2; 
+  } 
+  return 1; 
+} 
+
+void printArrayTree(int arr[], int n)
+{
+    cout << "\n";
+    cout << "\n";
+    for (int i=0; i<n; ++i)
+	{
+        cout << arr[i] << " ";
+		if(isPowerOfTwo(i+2))
+			cout << "\n";
+	}
+    cout << "\n";
+    cout << "\n";
+}
+
+
 // To heapify a subtree rooted with node i which is
 // an index in arr[]. n is size of heap
 void heapify(int arr[], int n, int i)
@@ -596,8 +650,10 @@ void heapify(int arr[], int n, int i)
 void heapSort(int arr[], int n)
 {
     // Build heap (rearrange array)
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
+    for (int i = n / 2 - 1; i >= 0; i--)  //i= 3,2,1,0
+        heapify(arr, n, i);  //在同一個subtree裡，leftchild(index(2i))與rightchild(index(2i+1))的「數值」大小順序不重要，只要和root(index(i))比較即可。 這也是Binary Heap與Binary Search Tree其中一項區別。
+	printArrayTree(arr, n);
+
 
     // One by one extract an element from heap
     for (int i=n-1; i>=0; i--)
@@ -607,27 +663,25 @@ void heapSort(int arr[], int n)
 
         // call max heapify on the reduced heap
         heapify(arr, i, 0);
+
+		printArrayTree(arr, n);
     }
 }
 
-/* A utility function to print array of size n */
-void printArray1(int arr[], int n)
-{
-    for (int i=0; i<n; ++i)
-        cout << arr[i] << " ";
-    cout << "\n";
-}
 
 // Driver program
 int main8()
 {
-    int arr[] = {12, 11, 13, 5, 6, 7};
+    int arr[] = {9,7,8,6,4,2,3,5,1};  //9,7,8,6,4,2,3,5,1本身已經是Binary Heap  範例: http://alrightchiu.github.io/SecondRound/comparison-sort-heap-sortdui-ji-pai-xu-fa.html
     int n = sizeof(arr)/sizeof(arr[0]);
+
+	printArrayTree(arr, n);
 
     heapSort(arr, n);
 
     cout << "Sorted array is \n";
     printArray1(arr, n);
+
 
 	return 0;
 }
