@@ -10,19 +10,26 @@
 using namespace std;
 
 
-template<size_t N>
-void printArray(int (&arr)[N])
+template <typename T, int N>
+void printArray(T (&arr)[N])
 {
 	for(int i=0;i<N;i++)
 		cout<<arr[i]<<"  ";
 	cout<<endl;
 }
 
-
-template<size_t N>
-int size(int (&arr)[N])
+template <typename T, int N>
+int size(T (&arr)[N])
 {
 	return N;
+}
+
+template <typename T>
+void swap(T (&arr),int a,int b)
+{
+	int temp = arr[a];
+	arr[a] = arr[b];
+	arr[b] = temp;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -37,33 +44,28 @@ int main1()
 	//2 3 4 5 x
 	//2 3 4 5 9
 
-	int c, d, position, swap;
-
 	int array[] = {9,2,3,5,4};
 	int n = size(array); 
 
-	for ( c = 0 ; c < ( n - 1 ) ; c++ )
+	for ( int c = 0 ; c < ( n - 1 ) ; c++ )
 	{
-		position = c;
+		int position = c;
 
-		for ( d = c + 1 ; d < n ; d++ )
+		for ( int d = c + 1 ; d < n ; d++ )
 		{
 			if ( array[position] > array[d] )
 				position = d;
 		}
 		if ( position != c )
 		{
-			swap = array[c];
-			array[c] = array[position];
-			array[position] = swap;
-
+			swap(array,c,position);
 			printArray(array);
 		}
 	}
 
 	cout<<"Sorted list in ascending order:";
 
-	for ( c = 0 ; c < n ; c++ )
+	for ( int c = 0 ; c < n ; c++ )
 		cout<<array[c];
 
 	return 0;
@@ -77,16 +79,17 @@ class IterativeBnySear
 {
 public:
 	template<size_t length>
-	static vector<int> Search(int (&array)[length], int num)
+	static void Search(int (&array)[length], int num, int *loc)
 	{
 		int left = 0, right = length - 1;
 		int middle = (right + left) / 2;
-		vector<int> v(2);
 		while (left <= right)
 		{
-			v[0] = middle; v[1] = middle;
 			if (array[middle] == num)
-				return v; // found
+			{
+				loc[0] = middle; loc[1] = middle;
+				return; // found
+			}
 
 			if (array[middle] > num)
 				right = middle - 1;
@@ -95,32 +98,34 @@ public:
 
 			middle = (right + left) / 2;
 		}
-		v[0] = right; v[1] = left;
-		return v;//not found
+		loc[0] = right; loc[1] = left;
+		return;//not found
 	}
 };
 
 class DivideAndConquer
 {
     public:
-		static vector<int> Search(int* array, int num, int left, int right)
+		static void Search(int* array, int num, int *loc, int left, int right)
 		{
-			vector<int> v(2);
-
 			int middle = (right + left) / 2;
 
-			v[0] = right; v[1] = left;
 			if (left > right)
-				return v; //not found
+			{
+				loc[0] = right; loc[1] = left;
+				return; //not found
+			}
 
-			v[0] = middle; v[1] = middle;
 			if (array[middle] == num)
-				return v; // found
+			{
+				loc[0] = middle; loc[1] = middle;
+				return; // found
+			}
 
 			if (array[middle] > num)
-				return Search(array, num, left, middle - 1);
+				return Search(array, num, loc, left, middle - 1);
 
-			return Search(array, num, middle + 1, right);
+			return Search(array, num, loc, middle + 1, right);
 		}
 };
 
@@ -129,55 +134,44 @@ int main2()
 {   //            0   1   2 3 4 5 6 7  8    //index
 	int arr[] = { 1,  3,  5,6,7,8,9,10,11 };//must be sorted array
 
-	vector<int> v;
+	int loc[2];
     int n = size(arr) ;
 
-	v  = IterativeBnySear::Search(arr,-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,-1,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
+	IterativeBnySear::Search(arr,-99,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,-99,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,0);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,0,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
+	IterativeBnySear::Search(arr,1,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,1,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,1,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
+	IterativeBnySear::Search(arr,2,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,2,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+
+	IterativeBnySear::Search(arr,3,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,3,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+
+	IterativeBnySear::Search(arr,4,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,4,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+
+	IterativeBnySear::Search(arr,11,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,11,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+
+	IterativeBnySear::Search(arr,99,loc);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
+	DivideAndConquer::Search(arr,99,loc,0,n-1);
+	cout<<loc[0]<<" "<<loc[1]<<endl;
 	
-	v  = IterativeBnySear::Search(arr,2);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,2,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,3);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,3,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-
-	v  = IterativeBnySear::Search(arr,4);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,4,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,11);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,11,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-
-	v  = IterativeBnySear::Search(arr,12);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,12,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,13);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,13,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-
-
 	return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -257,7 +251,7 @@ int main3()
 	//百位數排列:
 	//002 024 045 066 075 090 170 802 ~~~完成sort
 
-    int n = sizeof(arr)/sizeof(arr[0]);
+    int n = size(arr);
     radixsort(arr, n);
     print(arr, n);
     return 0;
@@ -1133,3 +1127,6 @@ int main12()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
+
+
+
