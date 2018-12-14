@@ -10,45 +10,63 @@
 using namespace std;
 
 
+template<size_t N>
+void printArray(int (&arr)[N])
+{
+	for(int i=0;i<N;i++)
+		cout<<arr[i]<<"  ";
+	cout<<endl;
+}
+
+
+template<size_t N>
+int size(int (&arr)[N])
+{
+	return N;
+}
+
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------selection_sort.cpp
 int main1()
 {
-	static const int n = 5;
-   int array[n], c, d, position, swap;
-   
-   array[0]=9;
-   array[1]=2;
-   array[2]=3;
-   array[3]=5;
-   array[4]=4;
+	//2 x x x x
+	//2 3 x x x
+	//2 3 4 x x
+	//2 3 4 5 x
+	//2 3 4 5 9
 
+	int c, d, position, swap;
 
-   for ( c = 0 ; c < ( n - 1 ) ; c++ )
-   {
-      position = c;
+	int array[] = {9,2,3,5,4};
+	int n = size(array); 
 
-      for ( d = c + 1 ; d < n ; d++ )
-      {
-         if ( array[position] > array[d] )
-            position = d;
-      }
-      if ( position != c )
-      {
-         swap = array[c];
-         array[c] = array[position];
-         array[position] = swap;
-      }
-   }
+	for ( c = 0 ; c < ( n - 1 ) ; c++ )
+	{
+		position = c;
 
-   cout<<"Sorted list in ascending order:";
+		for ( d = c + 1 ; d < n ; d++ )
+		{
+			if ( array[position] > array[d] )
+				position = d;
+		}
+		if ( position != c )
+		{
+			swap = array[c];
+			array[c] = array[position];
+			array[position] = swap;
 
-   for ( c = 0 ; c < n ; c++ )
-      cout<<array[c];
+			printArray(array);
+		}
+	}
 
-   return 0;
+	cout<<"Sorted list in ascending order:";
+
+	for ( c = 0 ; c < n ; c++ )
+		cout<<array[c];
+
+	return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -58,7 +76,8 @@ int main1()
 class IterativeBnySear
 {
 public:
-	static vector<int> Search(int* array, int length, int num)
+	template<size_t length>
+	static vector<int> Search(int (&array)[length], int num)
 	{
 		int left = 0, right = length - 1;
 		int middle = (right + left) / 2;
@@ -111,52 +130,51 @@ int main2()
 	int arr[] = { 1,  3,  5,6,7,8,9,10,11 };//must be sorted array
 
 	vector<int> v;
-    int n = sizeof(arr)/sizeof(arr[0]); 
-	
+    int n = size(arr) ;
 
-	v  = IterativeBnySear::Search(arr,n,-1);
+	v  = IterativeBnySear::Search(arr,-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  -1,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-
-	v  = IterativeBnySear::Search(arr,n,0);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  0,0,n-1);
+	v  = DivideAndConquer::Search(arr,-1,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,n,1);
+	v  = IterativeBnySear::Search(arr,0);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  1,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,n,2);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  2,0,n-1);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	
-	v  = IterativeBnySear::Search(arr,n,3);
-	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  3,0,n-1);
+	v  = DivideAndConquer::Search(arr,0,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,n,4);
+	v  = IterativeBnySear::Search(arr,1);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  4,0,n-1);
+	v  = DivideAndConquer::Search(arr,1,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
-	v  = IterativeBnySear::Search(arr,n,11);
+	v  = IterativeBnySear::Search(arr,2);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  11,0,n-1);
+	v  = DivideAndConquer::Search(arr,2,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,3);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,3,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
-	v  = IterativeBnySear::Search(arr,n,12);
+	v  = IterativeBnySear::Search(arr,4);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  12,0,n-1);
+	v  = DivideAndConquer::Search(arr,4,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 	
-	v  = IterativeBnySear::Search(arr,n,13);
+	v  = IterativeBnySear::Search(arr,11);
 	cout<<v[0]<<" "<<v[1]<<endl;
-	v  = DivideAndConquer::Search(arr,  13,0,n-1);
+	v  = DivideAndConquer::Search(arr,11,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+	v  = IterativeBnySear::Search(arr,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,12,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,13);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,13,0,n-1);
 	cout<<v[0]<<" "<<v[1]<<endl;
 
 
@@ -167,6 +185,7 @@ int main2()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------Radix Sort.cpp
 // A utility function to get maximum value in arr[]
+
 int getMax(int arr[], int n)
 {
     int mx = arr[0];
@@ -521,14 +540,6 @@ void mergeSort(int arr[], int l, int r)
 }
 
 /* UTILITY FUNCTIONS */
-/* Function to print an array */
-void printArray(int A[], int size)
-{
-    int i;
-    for (i=0; i < size; i++)
-        cout<<A[i]<<",";
-    cout<<"\n";
-}
 
 /* Driver program to test above functions */
 int main6()
@@ -543,12 +554,12 @@ int main6()
     int arr_size = sizeof(arr)/sizeof(arr[0]);
 
     cout<<"Given array is "<<"\n";
-    printArray(arr, arr_size);
+    printArray(arr);
 
     mergeSort(arr, 0, arr_size - 1);
 
     cout<<"\n"<<"Sorted array is" <<"\n";
-    printArray(arr, arr_size);
+    printArray(arr);
     return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
