@@ -18,8 +18,18 @@ void printArray(T (&arr)[N])
 	cout<<endl;
 }
 
+
+void printArray2(int arr[], int size) 
+{ 
+    int i; 
+    for (i=0; i < size; i++) 
+        printf("%d ", arr[i]); 
+    printf("\n"); 
+} 
+
+
 template <typename T, int N>
-int size(T (&arr)[N])
+int size(T (&arr)[N])          // N = sizeof(arr)/sizeof(arr[0]);
 {
 	return N;
 }
@@ -79,17 +89,16 @@ class IterativeBnySear
 {
 public:
 	template<size_t length>
-	static void Search(int (&array)[length], int num, int *loc)
+	static vector<int> Search(int (&array)[length], int num)
 	{
 		int left = 0, right = length - 1;
 		int middle = (right + left) / 2;
+		vector<int> v(2);
 		while (left <= right)
 		{
+			v[0] = middle; v[1] = middle;
 			if (array[middle] == num)
-			{
-				loc[0] = middle; loc[1] = middle;
-				return; // found
-			}
+				return v; // found
 
 			if (array[middle] > num)
 				right = middle - 1;
@@ -98,34 +107,32 @@ public:
 
 			middle = (right + left) / 2;
 		}
-		loc[0] = right; loc[1] = left;
-		return;//not found
+		v[0] = right; v[1] = left;
+		return v;//not found
 	}
 };
 
 class DivideAndConquer
 {
     public:
-		static void Search(int* array, int num, int *loc, int left, int right)
+		static vector<int> Search(int* array, int num, int left, int right)
 		{
+			vector<int> v(2);
+
 			int middle = (right + left) / 2;
 
+			v[0] = right; v[1] = left;
 			if (left > right)
-			{
-				loc[0] = right; loc[1] = left;
-				return; //not found
-			}
+				return v; //not found
 
+			v[0] = middle; v[1] = middle;
 			if (array[middle] == num)
-			{
-				loc[0] = middle; loc[1] = middle;
-				return; // found
-			}
+				return v; // found
 
 			if (array[middle] > num)
-				return Search(array, num, loc, left, middle - 1);
+				return Search(array, num, left, middle - 1);
 
-			return Search(array, num, loc, middle + 1, right);
+			return Search(array, num, middle + 1, right);
 		}
 };
 
@@ -134,44 +141,55 @@ int main2()
 {   //            0   1   2 3 4 5 6 7  8    //index
 	int arr[] = { 1,  3,  5,6,7,8,9,10,11 };//must be sorted array
 
-	int loc[2];
+	vector<int> v;
     int n = size(arr) ;
 
-	IterativeBnySear::Search(arr,-99,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,-99,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
+	v  = IterativeBnySear::Search(arr,-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,-1,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
 
-	IterativeBnySear::Search(arr,1,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,1,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
+	v  = IterativeBnySear::Search(arr,0);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,0,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
 
-	IterativeBnySear::Search(arr,2,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,2,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-
-	IterativeBnySear::Search(arr,3,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,3,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-
-	IterativeBnySear::Search(arr,4,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,4,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-
-	IterativeBnySear::Search(arr,11,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,11,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-
-	IterativeBnySear::Search(arr,99,loc);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
-	DivideAndConquer::Search(arr,99,loc,0,n-1);
-	cout<<loc[0]<<" "<<loc[1]<<endl;
+	v  = IterativeBnySear::Search(arr,1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,1,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
 	
+	v  = IterativeBnySear::Search(arr,2);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,2,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,3);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,3,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+	v  = IterativeBnySear::Search(arr,4);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,4,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,11);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,11,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+	v  = IterativeBnySear::Search(arr,12);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,12,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	
+	v  = IterativeBnySear::Search(arr,13);
+	cout<<v[0]<<" "<<v[1]<<endl;
+	v  = DivideAndConquer::Search(arr,13,0,n-1);
+	cout<<v[0]<<" "<<v[1]<<endl;
+
+
 	return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -232,13 +250,6 @@ void radixsort(int arr[], int n)
         countSort(arr, n, exp);
 }
  
-// A utility function to print an array
-void print(int arr[], int n)
-{
-    for (int i = 0; i < n; i++)
-        cout << arr[i] << " ";
-}
- 
 // Driver program to test above functions
 int main3()
 {
@@ -253,7 +264,7 @@ int main3()
 
     int n = size(arr);
     radixsort(arr, n);
-    print(arr, n);
+    printArray(arr);
     return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -262,22 +273,7 @@ int main3()
 //-------------------------------------------------------------------------------------------------------------------------------------quick_sort.cpp
 
 static int nNum;
-/* Function to print an array */
-void printArray2(int arr[], int size) 
-{ 
-    int i; 
-    for (i=0; i < size; i++) 
-        printf("%d ", arr[i]); 
-    printf("\n"); 
-} 
 
-
-void swap(int* a, int* b) 
-{ 
-    int t = *a; 
-    *a = *b; 
-    *b = t; 
-} 
   
 /* This function takes last element as pivot, places 
    the pivot element at its correct position in sorted 
@@ -297,11 +293,11 @@ int partition (int arr[], int low, int high)
         if (arr[j] <= pivot) 
         { 
             i++;    // increment index of smaller element 
-            swap(&arr[i], &arr[j]); 
+            swap(arr,i,j); 
 			printArray2(arr, nNum); 
         } 
     } 
-    swap(&arr[i + 1], &arr[high]); 
+    swap(arr,i + 1,high); 
     return (i + 1); 
 } 
   
@@ -329,7 +325,6 @@ void quickSort(int arr[], int low, int high)
 int main4() 
 { 
     int arr[] = {10,80,30,90,40,50,70};
-
 
 	//pivot:70
 	//10 80 30 90 40 50 70
@@ -360,16 +355,12 @@ int main4()
 	// {10}  { }
 
 
-
-
-    nNum = sizeof(arr)/sizeof(arr[0]); 
+    nNum = size(arr); 
     quickSort(arr, 0, nNum-1); 
     printf("Sorted array: \n"); 
     printArray2(arr, nNum); 
     return 0; 
 } 
-
-
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -545,7 +536,7 @@ int main6()
 	//https://www.baeldung.com/wp-content/uploads/2018/09/mergesort1.png
 
     int arr[] = {12, 11, 13, 5, 6, 7};
-    int arr_size = sizeof(arr)/sizeof(arr[0]);
+    int arr_size = size(arr);
 
     cout<<"Given array is "<<"\n";
     printArray(arr);
@@ -565,25 +556,27 @@ int main7()
 	//https://cdncontribute.geeksforgeeks.org/wp-content/uploads/insertionsort.png
 	//https://cdncontribute.geeksforgeeks.org/wp-content/uploads/insertion_sort-recursion.png
 	//https://www.w3resource.com/w3r_images/insertion-sort.png
-    int arr[100],num,temp,j;
-    cout << "Enter the number of elements" << endl;
-    cin >> num;
-    cout << "Enter the elements" << endl;
-    for(int i=0;i<num;i++){ // Entering the number
-        cin >> arr[i];
-    }
-    for(int i=1; i<num-1;i++){
+	
+    int arr[] = {12, 11, 13, 5, 6, 7};
+	int num = size(arr);
+	int temp;
+	int j;
+
+    for(int i=1; i<num-1;i++)
+	{
         temp = arr[i];
         j = i-1;
-        while((temp<arr[j]) && (j>=0)){ // Number of comparison.
+
+        while((temp<arr[j]) && (j>=0)) // Number of comparison.
+		{
             arr[j+1] = arr[j];
             j = j-1;
         }
+
         arr[j+1] = temp; //Insert at its proper position.
-        cout << "Pass " << i << " : "; // Print the number of passes.
-            for(int i=0;i<num;i++){
-                cout << arr[i] << " "; // Print the array element
-            }
+
+        printArray(arr);
+
         cout << endl;
     }
 
@@ -593,33 +586,22 @@ int main7()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------heapsort.cpp
-
-/* A utility function to print array of size n */
-void printArray1(int arr[], int n)
-{
-    for (int i=0; i<n; ++i)
-        cout << arr[i] << " ";
-    cout << "\n";
-}
-
 bool isPowerOfTwo(int n) 
 { 
   if (n == 0) 
-    return 0;
-
+    return false;
 
   while (n != 1) 
   { 
       if (n%2 != 0) 
-         return 0; 
+         return true; 
       n = n/2; 
   } 
-  return 1; 
+  return false; 
 } 
 
 void printArrayTree(int arr[], int n)
 {
-    cout << "\n";
     cout << "\n";
     for (int i=0; i<n; ++i)
 	{
@@ -627,7 +609,6 @@ void printArrayTree(int arr[], int n)
 		if(isPowerOfTwo(i+2))
 			cout << "\n";
 	}
-    cout << "\n";
     cout << "\n";
 }
 
@@ -651,7 +632,7 @@ void heapify(int arr[], int n, int i)
     // If largest is not root
     if (largest != i)
     {
-        swap(arr[i], arr[largest]);
+        swap(arr,i,largest);
 
         // Recursively heapify the affected sub-tree
         heapify(arr, n, largest);
@@ -666,12 +647,11 @@ void heapSort(int arr[], int n)
         heapify(arr, n, i);  //在同一個subtree裡，leftchild(index(2i))與rightchild(index(2i+1))的「數值」大小順序不重要，只要和root(index(i))比較即可。 這也是Binary Heap與Binary Search Tree其中一項區別。
 	printArrayTree(arr, n);
 
-
     // One by one extract an element from heap
     for (int i=n-1; i>=0; i--)
     {
         // Move current root to end
-        swap(arr[0], arr[i]);
+        swap(arr,0,i);
 
         // call max heapify on the reduced heap
         heapify(arr, i, 0);
@@ -685,15 +665,14 @@ void heapSort(int arr[], int n)
 int main8()
 {
     int arr[] = {9,7,8,6,4,2,3,5,1};  //9,7,8,6,4,2,3,5,1本身已經是Binary Heap  範例: http://alrightchiu.github.io/SecondRound/comparison-sort-heap-sortdui-ji-pai-xu-fa.html
-    int n = sizeof(arr)/sizeof(arr[0]);
+    int n = size(arr);
 
 	printArrayTree(arr, n);
 
     heapSort(arr, n);
 
     cout << "Sorted array is \n";
-    printArray1(arr, n);
-
+    printArray(arr);
 
 	return 0;
 }
@@ -906,9 +885,9 @@ int main9()
 		2--------3     這橫條是edge[4]
 			4												*/
 
-	int V = 4; // Number of vertices in graph
-	int E = 5; // Number of edges in graph
-	struct Graph* graph = createGraph(V, E);
+	int VV = 4; // Number of vertices in graph
+	int EE = 5; // Number of edges in graph
+	struct Graph* graph = createGraph(VV, EE);
 
 	// add edge 0-1
 	graph->edge[0].src = 0;		//src是V起點
@@ -963,7 +942,7 @@ return min_index;
 // A utility function to print the constructed distance array
 void printSolution(int dist[], int n)
 {
-printf("Vertex Distance from Sourcen");
+printf("Vertex Distance from Sourcen\n");
 for (int i = 0; i < V; i++)
 	printf("%d tt %dn", i, dist[i]);
 }
@@ -1014,15 +993,15 @@ void dijkstra(int graph[V][V], int src)
 int main10()
 {
 /* Let us create the example graph discussed above */
-int graph[V][V] = {{0, 4, 0, 0, 0, 0, 0, 8, 0},
-					{4, 0, 8, 0, 0, 0, 0, 11, 0},
-					{0, 8, 0, 7, 0, 4, 0, 0, 2},
-					{0, 0, 7, 0, 9, 14, 0, 0, 0},
-					{0, 0, 0, 9, 0, 10, 0, 0, 0},
-					{0, 0, 4, 14, 10, 0, 2, 0, 0},
-					{0, 0, 0, 0, 0, 2, 0, 1, 6},
-					{8, 11, 0, 0, 0, 0, 1, 0, 7},
-					{0, 0, 2, 0, 0, 0, 6, 7, 0}
+int graph[V][V] = { {0,  4,  0,  0,  0,  0,  0,  8,  0},
+					{4,  0,  8,  0,  0,  0,  0,  11, 0},
+					{0,  8,  0,  7,  0,  4,  0,  0,  2},
+					{0,  0,  7,  0,  9,  14, 0,  0,  0},
+					{0,  0,  0,  9,  0,  10, 0,  0,  0},
+					{0,  0,  4,  14, 10, 0,  2,  0,  0},
+					{0,  0,  0,  0,  0,  2,  0,  1,  6},
+					{8,  11, 0,  0,  0,  0,  1,  0,  7},
+					{0,  0,  2,  0,  0,  0,  6,  7,  0}
 					};
 
 	dijkstra(graph, 0);
@@ -1085,12 +1064,11 @@ void bucketSort(float arr[])
 int main11()
 {
     float arr[] = {0.897, 0.565, 0.656, 0.1234, 0.665, 0.3434, 0.1648, 0.4855, 0.1395, 0.7846};
-    bucketN = sizeof(arr)/sizeof(arr[0]);
+    bucketN = size(arr);
     bucketSort(arr);
  
     cout << "Sorted array is \n";
-    for (int i=0; i<bucketN; i++)
-       cout << arr[i] << " ";
+    printArray(arr);
     return 0;
 }
 //-------------------------------------------------------------------------------------------------------------------------------------
@@ -1099,10 +1077,10 @@ int main11()
 //-------------------------------------------------------------------------------------------------------------------------------------bubble_sort.cpp
 int main12()
 {
-    int n,a[100],temp,i,j;
-    cout<<"enter the number of elements";
-    cin>>n;
-    cout<<"enter elements";
+    int temp,i,j;
+
+    int a[] = {9,7,8,6,4,2,3,5,1}; 
+    int n = size(a);
 
     for(i=0;i<n;i++)
         cin>>a[i];
@@ -1118,8 +1096,7 @@ int main12()
 
     cout<<"the sorted numbers are:";
 
-    for(i=0;i<n;i++)
-        cout<<a[i];
+    printArray(a);
 
 	return 0;
 }
@@ -1127,6 +1104,3 @@ int main12()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
-
-
-
