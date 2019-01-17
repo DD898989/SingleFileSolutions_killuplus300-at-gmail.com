@@ -1,8 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.IO;
+
+namespace BF
+{
+    static public partial class BINARY_FILES
+    {
+        static public byte?[] EMPTY_ARRAY = new byte?[]
+        {
+            
+        };
+    }
+}
 
 namespace ForCompressAndDecompressFile
 {
@@ -10,285 +21,192 @@ namespace ForCompressAndDecompressFile
     {
         static void Main(string[] args)
         {
-            //for encode, and decode output path
-            string file = @"C:\Users\dave.gan\Desktop\Test.exe";
-            //for decode,  include .cs file is needed
-            byte?[] buffer_encoded_input = null;// BF.BINARY_FILES.Test_exe; //
-            //true for encode, false for decode
-            bool isEncode = true; // true false    true for Encode,  false for Decode
+            //############## SETTING ##############
+            byte?[] encodedArray = BF.BINARY_FILES.EMPTY_ARRAY;//EMPTY_ARRAY: encode process   、  Others: decode process
+            string sourceFile = @"C:\Users\dave.gan\Desktop\Unzip.exe";//encode process: input file & output path   、   decode process: output path
+            //############## SETTING ##############
 
+            byte?[] decodedArray = null;
 
-
-            if (!file.Contains("."))
-                throw new Exception("No extension file name in file name");
-            if (isEncode)
+            if (encodedArray.Length == 0)  //########## encode process #########
             {
-                byte[] buffer_input = System.IO.File.ReadAllBytes(file);
-                byte?[] buffer_encoded_output = new byte?[buffer_input.Length + 1];
                 //----------------------------------------------------
-                BWTImplementation bwt = new BWTImplementation();
-                bwt.BWT_Encode(buffer_input, buffer_encoded_output);
+                byte?[] sourceArray = File.ReadAllBytes(sourceFile).Cast<byte?>().ToArray();
+
+                encodedArray = sourceArray.ToArray();
+
+                BWT.Encode(ref encodedArray); //ref for array is necessary if size changed
+
+                RLC.Encode(ref encodedArray);
+
+                ByteArray_To_CSharpTextFile(encodedArray, sourceFile + ".encoded.cs");
+
                 //----------------------------------------------------
-                RLC_Encode(ref buffer_encoded_output);
                 //----------------------------------------------------
-                ByteArray_To_TextFile(file, buffer_encoded_output);
                 //----------------------------------------------------
-                byte?[] CHECK1 = buffer_encoded_output.ToArray();
-                byte[] CHECK2 = buffer_input.ToArray();
-                RLC_Decode(ref CHECK1);
-                bwt.BWT_Decode(CHECK1, CHECK2);
-                if (buffer_input.SequenceEqual(CHECK2))
-                {
+                //----------------------------------------------------testing
+                decodedArray = encodedArray.ToArray();
+                RLC.Decode(ref decodedArray);
+                BWT.Decode(ref decodedArray);
+                if (sourceArray.SequenceEqual(decodedArray))
                     throw (new Exception("TEST DECODE OK"));
-                }
                 else
-                {
                     throw (new Exception("TEST DECODE FAIL"));
-                }
                 //----------------------------------------------------
             }
-            else
+            else  //########## decode process #########
             {
                 //----------------------------------------------------
-                RLC_Decode(ref buffer_encoded_input);
-                //----------------------------------------------------
-                byte[] buffer_decoded = new byte[buffer_encoded_input.Length - 1];
-                BWTImplementation bwt = new BWTImplementation();
-                bwt.BWT_Decode(buffer_encoded_input, buffer_decoded);
-                //----------------------------------------------------
-                ByteArray_To_BinaryFile(file.Substring(0, file.LastIndexOf(".")) + ".decode" + file.Substring(file.LastIndexOf("."), file.Length - file.LastIndexOf(".")), buffer_decoded);
+                decodedArray = encodedArray.ToArray();
+
+                RLC.Decode(ref decodedArray);
+
+                BWT.Decode(ref decodedArray);
+
+                ByteArray_To_BinaryFile(decodedArray.Cast<byte>().ToArray(),sourceFile + "_");
                 //----------------------------------------------------
             }
         }
 
-
-        enum RLCState
+        static public void ByteArray_To_CSharpTextFile( byte?[] byArray, string outputPath)
         {
-            E_INIT,
-            E_CHECK_NEW_BYTE,
-            E_SAME_BYTE_ALREADY,
-        }
-
-        static void RLC_Encode(ref byte?[] data)
-        {
-            List<byte?> b = new List<byte?>();
-            int count = 0;
-            int j = 0;
-            RLCState state = RLCState.E_INIT;
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (count == 255)
-                {
-                    b.Add(b.Last());
-                    b[b.Count - 1 - 1] = (byte)count;
-                    b.Add(255);
-                    b.Add(data[i]);
-                    count = 1;
-                    state = RLCState.E_CHECK_NEW_BYTE;
-                    //-------------
-                    continue;
-                }
-
-                if (i == data.Length - 1)
-                {
-                    if (state == RLCState.E_CHECK_NEW_BYTE)
-                    {
-                        if (b.Last() == 255)
-                        {
-                            b.Add(b.Last());
-                            b[b.Count - 1 - 1] = (byte)count;
-                        }
-                        else
-                        {
-                            b.RemoveAt(b.Count - 1 - 1);
-                        }
-                        b.Add(data[i]);
-                        continue;
-                    }
-                    else if (state == RLCState.E_SAME_BYTE_ALREADY)
-                    {
-                        b.Add(b.Last());
-                        b.RemoveAt(b.Count - 1 - 1);
-                        b.Add((byte)count);
-                        b.Add(data[i]);
-                        continue;
-                    }
-                }
-
-                switch (state)
-                {
-                    case RLCState.E_INIT:
-                        b.Add(255);
-                        b.Add(data[i]);
-                        count = 1;
-                        state = RLCState.E_CHECK_NEW_BYTE;
-                        break;
+            int nLast = outputPath.LastIndexOf('\\');
+            string fileName = outputPath.Substring(nLast + 1, outputPath.Length - nLast - 1);
+            TextWriter writeFile = new StreamWriter(outputPath );
+            var type = typeof(BF.BINARY_FILES);
 
 
-                    case RLCState.E_CHECK_NEW_BYTE:
-                        if (b.Last() == data[i])
-                        {
-                            count++;
-                            state = RLCState.E_SAME_BYTE_ALREADY;
-                        }
-                        else if (b.Last() == 255)
-                        {
-                            b.Add(b.Last());
-                            b[b.Count - 1 - 1] = (byte)count;
-                            b.Add(255);
-                            b.Add(data[i]);
-                            count = 1;
-                        }
-                        else
-                        {
-                            b.RemoveAt(b.Count - 1 - 1);
-                            b.Add(255);
-                            b.Add(data[i]);
-                            count = 1;
-                        }
+            writeFile.WriteLine("namespace " + type.Namespace + "{");
 
-                        break;
+            writeFile.WriteLine("static public partial class " + type.Name + "{");
 
-                    case RLCState.E_SAME_BYTE_ALREADY:
-                        if (b.Last() == data[i])
-                        {
-                            count++;
-                        }
-                        else
-                        {
-                            b.Add(b.Last());
-                            b[b.Count - 1 - 1] = (byte)count;
-                            b.Add(255);
-                            b.Add(data[i]);
-                            count = 1;
-                            state = RLCState.E_CHECK_NEW_BYTE;
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            data = b.ToArray();
-        }
-
-        static void RLC_Decode(ref byte?[] data)
-        {
-            List<byte?> b = new List<byte?>();
-
-            int j = 0;
-            int round = 0;
-            for (int i = 0; i < data.Length; i++)
-            {
-                if (data[i] == 255 && j == 0)
-                {
-                    j = 1;
-                }
-                else if (j == 1)
-                {
-                    round = (int)data[i];
-                    j = 2;
-                }
-                else if (j == 2)
-                {
-                    for (int k = 0; k < round; k++)
-                        b.Add(data[i]);
-                    j = 0;
-                }
-                else
-                {
-                    b.Add(data[i]);
-                    j = 0;
-                }
-            }
-            data = b.ToArray();
-        }
-
-        static public void ByteArray_To_TextFile(string fileName, byte[] byArray)
-        {
-            byte?[] byArray_ = new byte?[byArray.Length];
-            for (int i = 0; i < byArray.Length; i++)
-                byArray_[i] = byArray[i];
-            ByteArray_To_TextFile(fileName, byArray_);
-        }
-
-        static public void ByteArray_To_TextFile(string inputFilePath, byte?[] byArray)
-        {
-            int lastindex = inputFilePath.LastIndexOf('\\');
-            string fileName = inputFilePath.Substring(lastindex + 1, inputFilePath.Length - lastindex - 1);
-            string outputFilePath = Path.GetFullPath(System.IO.Path.Combine(Environment.CurrentDirectory.ToString(), @"..\..") + @"\") + fileName;
-            System.IO.TextWriter writeFile = new System.IO.StreamWriter(
-               outputFilePath + ".cs");
-            writeFile.Write(@"namespace BF");
-            writeFile.WriteLine("");
-            writeFile.Write(@"    {");
-            writeFile.WriteLine("");
-            writeFile.Write(@"static public partial class BINARY_FILES");
-            writeFile.WriteLine("");
-            writeFile.Write(@"    {");
-            writeFile.WriteLine("");
-            writeFile.Write(@"        static public byte?[] ");
+            writeFile.Write("static public byte?[] ");
             writeFile.Write(fileName.Replace(".", "_"));
-            writeFile.Write(@" = new byte?[]");
-            writeFile.WriteLine("");
-            writeFile.Write(@"        {");
-            writeFile.WriteLine("");
-            writeFile.Write(@"            ");
+            writeFile.WriteLine(" = new byte?[]{");
+
             foreach (byte? b in byArray)
+            {
                 if (b != null)
-                    writeFile.Write(b + ",");
+                    writeFile.WriteLine(b + ",");
                 else
-                    writeFile.Write("null" + ",");
-            writeFile.Write(@"");
-            writeFile.WriteLine("");
-            writeFile.Write(@"        };");
-            writeFile.WriteLine("");
-            writeFile.Write(@"    }");
-            writeFile.WriteLine("");
-            writeFile.Write(@"}");
+                    writeFile.WriteLine("null" + ",");
+            }
+
+            writeFile.WriteLine("};");
+
+            writeFile.WriteLine("}");
+
+            writeFile.WriteLine("}");
+
+
             writeFile.Flush();
             writeFile.Close();
             writeFile = null;
         }
 
-        static public void ByteArray_To_BinaryFile(string fileName, byte[] btArray)
+        static public void ByteArray_To_BinaryFile(byte[] btArray, string outputPath)
         {
-            using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            using (var fs = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
             {
                 fs.Write(btArray, 0, btArray.Length);
             }
         }
     }
 
-    class BWTImplementation
+    class RLC
     {
-        public void BWT_Encode(byte[] buf_in_, byte?[] buffer_decoded)
+        public static void Encode(ref byte?[] arr1)
         {
+            byte?[] arr2 = new byte?[arr1.Length*2]; //default value: null
+
+            int ind = -1;
+            byte same = 1;
+            byte? target = arr1[0];
+
+            for (int i = 1; i < arr1.Length; i++)
+            {
+                if (arr1[i - 1] == arr1[i] && same != 255)
+                {
+                    same++;
+                }
+                else
+                {
+                    if (same > 1 || target==255)
+                    {
+                        arr2[++ind] = 255;
+                        arr2[++ind] = same;
+                        arr2[++ind] = target;
+                    }
+                    else
+                    {
+                        arr2[++ind] = target;
+                    }
+                    target = arr1[i];
+                    same = 1;
+                }
+            }
+            arr2[++ind] = 255;
+            arr2[++ind] = same;
+            arr2[++ind] = target;
+
+            Array.Resize(ref arr2, ind+1); 
+            arr1 = arr2.ToArray();
+        }
+
+        public static void Decode(ref byte?[] arr1)
+        {
+            List<byte?> arr2 = new List<byte?>();
+
+            for (int i = 0; i < arr1.Length; i++)
+            {
+                if (arr1[i] == 255)
+                {
+                    byte? same = arr1[++i];
+                    ++i;
+                    for (byte j = 0; j < same; j++)
+                        arr2.Add(arr1[i]);
+                }
+                else
+                {
+                    arr2.Add(arr1[i]);
+                }
+            }
+            arr1 = arr2.ToArray();
+        }
+    }
+
+    class BWT
+    {
+        static public void Encode(ref byte?[] arr1)
+        {
+            int inLen = arr1.Length;
+            int outLen = arr1.Length + 1;//+1: for primarykey(null)
+
+            byte?[] arr2 = arr1.ToArray();
+            Array.Resize(ref arr2, outLen); 
+
+            arr1 = new byte?[outLen];
             //----------------------------------------------------
-            int nLen = buffer_decoded.Length;
-            byte?[] buf_in = new byte?[buf_in_.Length + 1];
-            buf_in[buf_in_.Length] = null;
-            for (int i = 0; i < buf_in_.Length; i++)
-                buf_in[i] = buf_in_[i];
-            //----------------------------------------------------
-            int[] indices = new int[nLen];
-            for (int i = 0; i < nLen; i++)
+            int[] indices = new int[outLen];
+            for (int i = 0; i < outLen; i++)
                 indices[i] = i;
             //----------------------------------------------------
-            Array.Sort(indices, 0, nLen, new BWTComparator(buf_in, nLen));
+            Array.Sort(indices, 0, outLen, new BWTComparator(arr2, outLen));
             //----------------------------------------------------
-            for (int i = 0; i < nLen; i++)
+            for (int i = 0; i < outLen; i++)
             {
-                int temp = (indices[i] + nLen - 1) % nLen;
-                buffer_decoded[i] = (byte?)buf_in[temp];
+                int temp = (indices[i] + outLen - 1) % outLen;
+                arr1[i] = (byte?)arr2[temp];
             }
             //----------------------------------------------------
         }
 
-        public void BWT_Decode(byte?[] buf_encoded, byte[] buf_decoded)
+        static public void Decode(ref byte?[] arr1)
         {
+            byte?[] arr2 = arr1.ToArray();
+            arr1 = new byte?[arr2.Length - 1];
             //----------------------------------------------------
-            int nLen = buf_encoded.Length;
+            int nLen = arr2.Length;
             int[] F = new int[nLen];
             int[] buckets = new int[0x100 + 1];
             int[] indices = new int[nLen];
@@ -297,8 +215,8 @@ namespace ForCompressAndDecompressFile
                 buckets[i] = 0;
             for (int i = 0; i < nLen; i++)
             {
-                if (buf_encoded[i] != null)
-                    buckets[(int)buf_encoded[i] + 1]++;
+                if (arr2[i] != null)
+                    buckets[(int)arr2[i] + 1]++;
                 else
                     buckets[0]++;
             }
@@ -322,21 +240,21 @@ namespace ForCompressAndDecompressFile
             //----------------------------------------------------
             for (int i = 0; i < nLen; i++)
             {
-                if (buf_encoded[i] != null)
-                    indices[buckets[(int)buf_encoded[i] + 1]++] = i;
+                if (arr2[i] != null)
+                    indices[buckets[(int)arr2[i] + 1]++] = i;
                 else
                     indices[buckets[0]++] = i;
             }
             //----------------------------------------------------
             int primary_key = -1;
             for (int i = 0; i < nLen; i++)
-                if (buf_encoded[i] == null)
+                if (arr2[i] == null)
                 { primary_key = i; break; }
             //----------------------------------------------------
             byte?[] buffer_de_ = new byte?[nLen];
             for (int i = 0, j = primary_key; i < nLen; i++)
             {
-                buffer_de_[i] = buf_encoded[j];
+                buffer_de_[i] = arr2[j];
                 j = indices[j];
             }
             //----------------------------------------------------
@@ -346,40 +264,40 @@ namespace ForCompressAndDecompressFile
                 if (buffer_de_[k] != null)
                 {
                     p++;
-                    buf_decoded[p] = (byte)buffer_de_[k];
+                    arr1[p] = (byte)buffer_de_[k];
                 }
             }
             //----------------------------------------------------
         }
-    }
 
-    class BWTComparator : IComparer<int>
-    {
-        private byte?[] rotlexcmp_buf = null;
-        private int rottexcmp_bufsize = 0;
-
-        public BWTComparator(byte?[] array, int size)
+        class BWTComparator : IComparer<int>
         {
-            rotlexcmp_buf = array;
-            rottexcmp_bufsize = size;
-        }
+            private byte?[] rotlexcmp_buf = null;
+            private int rottexcmp_bufsize = 0;
 
-        public int Compare(int li, int ri)
-        {
-            int ac = rottexcmp_bufsize;
-            while (rotlexcmp_buf[li] == rotlexcmp_buf[ri])
+            public BWTComparator(byte?[] array, int size)
             {
-                if (++li == rottexcmp_bufsize)
-                    li = 0;
-                if (++ri == rottexcmp_bufsize)
-                    ri = 0;
-                if (--ac <= 0)
-                    return 0;
+                rotlexcmp_buf = array;
+                rottexcmp_bufsize = size;
             }
-            if (rotlexcmp_buf[li] > rotlexcmp_buf[ri] || rotlexcmp_buf[ri] == null)
-                return 1;
 
-            return -1;
+            public int Compare(int li, int ri)
+            {
+                int ac = rottexcmp_bufsize;
+                while (rotlexcmp_buf[li] == rotlexcmp_buf[ri])
+                {
+                    if (++li == rottexcmp_bufsize)
+                        li = 0;
+                    if (++ri == rottexcmp_bufsize)
+                        ri = 0;
+                    if (--ac <= 0)
+                        return 0;
+                }
+                if (rotlexcmp_buf[li] > rotlexcmp_buf[ri] || rotlexcmp_buf[ri] == null)
+                    return 1;
+
+                return -1;
+            }
         }
     }
 }
