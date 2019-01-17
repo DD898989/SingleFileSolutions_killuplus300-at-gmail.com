@@ -63,16 +63,16 @@ namespace ForCompressAndDecompressFile
 
                 BWT.Decode(ref decodedArray);
 
-                ByteArray_To_BinaryFile(decodedArray.Cast<byte>().ToArray(),sourceFile + "_");
+                ByteArray_To_BinaryFile(decodedArray.Cast<byte>().ToArray(), sourceFile + "_");
                 //----------------------------------------------------
             }
         }
 
-        static public void ByteArray_To_CSharpTextFile( byte?[] byArray, string outputPath)
+        static public void ByteArray_To_CSharpTextFile(byte?[] byArray, string outputPath)
         {
             int nLast = outputPath.LastIndexOf('\\');
             string fileName = outputPath.Substring(nLast + 1, outputPath.Length - nLast - 1);
-            TextWriter writeFile = new StreamWriter(outputPath );
+            TextWriter writeFile = new StreamWriter(outputPath);
             var type = typeof(BF.BINARY_FILES);
 
 
@@ -117,7 +117,7 @@ namespace ForCompressAndDecompressFile
     {
         public static void Encode(ref byte?[] arr1)
         {
-            byte?[] arr2 = new byte?[arr1.Length*2]; //default value: null
+            byte?[] arr2 = new byte?[arr1.Length * 2]; //default value: null
 
             int ind = -1;
             byte same = 1;
@@ -131,7 +131,7 @@ namespace ForCompressAndDecompressFile
                 }
                 else
                 {
-                    if (same > 1 || target==255)
+                    if (same > 1 || target == 255)
                     {
                         arr2[++ind] = 255;
                         arr2[++ind] = same;
@@ -149,7 +149,7 @@ namespace ForCompressAndDecompressFile
             arr2[++ind] = same;
             arr2[++ind] = target;
 
-            Array.Resize(ref arr2, ind+1); 
+            Array.Resize(ref arr2, ind + 1);
             arr1 = arr2.ToArray();
         }
 
@@ -179,11 +179,10 @@ namespace ForCompressAndDecompressFile
     {
         static public void Encode(ref byte?[] arr1)
         {
-            int inLen = arr1.Length;
             int outLen = arr1.Length + 1;//+1: for primarykey(null)
 
             byte?[] arr2 = arr1.ToArray();
-            Array.Resize(ref arr2, outLen); 
+            Array.Resize(ref arr2, outLen);
 
             arr1 = new byte?[outLen];
             //----------------------------------------------------
