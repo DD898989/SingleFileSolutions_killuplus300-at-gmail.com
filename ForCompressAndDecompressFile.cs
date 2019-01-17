@@ -54,7 +54,7 @@ namespace ForCompressAndDecompressFile
                     throw (new Exception("TEST DECODE FAIL"));
                 //----------------------------------------------------
             }
-            else  //########## decode process #########
+            else  //                           ########## decode process #########
             {
                 //----------------------------------------------------
                 decodedArray = encodedArray.ToArray();
