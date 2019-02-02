@@ -4,6 +4,14 @@
 #define INDENT_STEP  4
 using namespace std;
 
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)
+
 struct node
 {
 private:
