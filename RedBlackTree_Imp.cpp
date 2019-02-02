@@ -4,65 +4,65 @@
 #define INDENT_STEP  4
 using namespace std;
 
-typedef struct rbtree_node
+struct node
 {
 private:
 	bool color;//0:red , 1:black
 
 public:
 	int key,value;
-	rbtree_node *dir[2], *parent;
+	node *dir[2], *parent;
 	bool clr() { return this == NULL ? true : color; }
 	void clr(bool c) { color = c; }
-}*node;
+};
 
 
 class RBTree
 {
 public:
-	rbtree_node *root;
+	node *root;
 	RBTree(){this->root = NULL;}
-	int rbtree_lookup(int);
-	void rbtree_insert(int,int);
-	void rbtree_delete(int);
+	int search(int);
+	void insert(int,int);
+	void erase(int);
 
 private:
-	node new_node(int,int);
-	node maximum_node(node);
-	void replace_node(node,node);
-	void rotate(node,bool);
+	node* new_node(int,int);
+	node* maximum_node(node*);
+	node* search_node(int);
+	void replace_node(node*,node*);
+	void rotate(node*,bool);
 	
-	node lookup_node(int);
-	void insert_cases(node);
-	void delete_cases(node);
+	void insert_cases(node*);
+	void delete_cases(node*);
 
-	node grandparent(node);
-	node sibling(node);
-	node uncle(node);
+	node* grandparent(node*);
+	node* sibling(node*);
+	node* uncle(node*);
 };
 
 //Return Grandparent of Node 
-node RBTree::grandparent(node n)
+node* RBTree::grandparent(node* n)
 {
 	return n->parent->parent;
 }
 
 //Return Sibling of Node 
-node RBTree::sibling(node n)
+node* RBTree::sibling(node* n)
 {
 	return n->parent->dir[n == n->parent->dir[0]];
 }
 
 //Return Uncle of Node 
-node RBTree::uncle(node n)
+node* RBTree::uncle(node* n)
 {
 	return sibling(n->parent);
 }
 
 //Creating New Node of Reb Black Tree
-node RBTree::new_node(int k, int v)
+node* RBTree::new_node(int k, int v)
 {
-	node result = new rbtree_node;
+	node* result = new node;
 	result->key = k;
 	result->value = v;
 	result->clr(false);
@@ -73,9 +73,9 @@ node RBTree::new_node(int k, int v)
 }
 
 //Look Up through Node
-node RBTree::lookup_node(int key)
+node* RBTree::search_node(int key)
 {
-	node n = this->root;
+	node* n = this->root;
 	while (n != NULL)
 	{
 		if (key == n->key)
@@ -87,28 +87,30 @@ node RBTree::lookup_node(int key)
 }
 
 //RbTree Look Up
-int RBTree::rbtree_lookup(int key)
+int RBTree::search(int key)
 {
-	node n = lookup_node(key);
+	node* n = search_node(key);
 	return n == NULL ? NULL : n->value;
 }
 
 //Rotate left
-void RBTree::rotate(node n, bool bDir)//bDir---false:left rotate,true:right rotate
+void RBTree::rotate(node* n, bool bDir)//bDir---false:left rotate,true:right rotate
 {
-	node N = n->dir[bDir];
+	node* N = n->dir[bDir];
 	replace_node(n, N);
 
-	n->dir[bDir] = N -> dir[!bDir];
-	if (N -> dir[!bDir] != NULL)
-		N -> dir[!bDir]->parent = n;
-	N -> dir[!bDir] = n;
+	node* temp = N->dir[!bDir];
+	
+	n->dir[bDir] = temp;
+	if (temp != NULL)
+		temp->parent = n;
+	N->dir[!bDir] = n;
 
 	n->parent = N;
 }
 
-//Replace a node
-void RBTree::replace_node(node oldn, node newn)
+//Replace a node*
+void RBTree::replace_node(node* oldn, node* newn)
 {
 	if (oldn->parent == NULL)
 		this->root = newn;
@@ -119,17 +121,18 @@ void RBTree::replace_node(node oldn, node newn)
 		newn->parent = oldn->parent;
 }
 
-//Insert node into RBTree
-void RBTree::rbtree_insert(int key, int value)
+//Insert node* into RBTree
+void RBTree::insert(int key, int value)
 {
-	node inserted_node = new_node(key, value);
+	node* inserted_node = NULL;
 	if (this->root == NULL)
 	{
+		inserted_node =  new_node(key, value);
 		this->root = inserted_node;
 	}
 	else
 	{
-		node n = this->root;
+		node* n = this->root;
 		while (true)
 		{
 			if (key == n->key)
@@ -141,6 +144,7 @@ void RBTree::rbtree_insert(int key, int value)
 			{
 				if (n->dir[key > n->key] == NULL)
 				{
+					inserted_node =  new_node(key, value);
 					n->dir[key > n->key] = inserted_node;
 					break;
 				}
@@ -154,7 +158,7 @@ void RBTree::rbtree_insert(int key, int value)
 	}
 	insert_cases(inserted_node);
 }
-void RBTree::insert_cases(node n)
+void RBTree::insert_cases(node* n)
 {
 	if (n->parent == NULL)//case 1
 		n->clr(true);
@@ -192,16 +196,16 @@ void RBTree::insert_cases(node n)
 }
 
 //Delete Node from RBTree
-void RBTree::rbtree_delete(int key)
+void RBTree::erase(int key)
 {
-	node child;
-	node n = lookup_node(key);
+	node* child;
+	node* n = search_node(key);
 	if (n == NULL)
 		return;
 
 	if (n->dir[0] != NULL && n->dir[1] != NULL)
 	{
-		node pred = maximum_node(n->dir[0]);
+		node* pred = maximum_node(n->dir[0]);
 		n->key   = pred->key;
 		n->value = pred->value;
 		n = pred;
@@ -218,7 +222,7 @@ void RBTree::rbtree_delete(int key)
 	replace_node(n, child);
 	free(n);
 }
-void RBTree::delete_cases(node n)
+void RBTree::delete_cases(node* n)
 {
 	if (n->parent == NULL)//case 1
 		return;
@@ -274,8 +278,8 @@ void RBTree::delete_cases(node n)
 	}
 }
 
-//Returns Maximum node
-node RBTree::maximum_node(node n)
+//Returns Maximum node*
+node* RBTree::maximum_node(node* n)
 {
 	while (n->dir[1] != NULL)
 		n = n->dir[1];
@@ -283,7 +287,7 @@ node RBTree::maximum_node(node n)
 }
 
 //Print RBTRee
-void print_tree_helper(node n, int indent)
+void print_tree_helper(node* n, int indent)
 {
 	if (n == NULL)
 	{
@@ -306,7 +310,7 @@ void print_tree_helper(node n, int indent)
 	if (n->dir[0] != NULL)
 		print_tree_helper(n->dir[0], indent + INDENT_STEP);
 }
-void print_tree(node n)
+void print_tree(node* n)
 {
 	print_tree_helper(n, 0);
 	puts("");
@@ -335,20 +339,20 @@ int main()
 		int x = getNumBetween10to99();
 		int y = x*10;
 		test = x;
-		rbt.rbtree_insert(x, y);
+		rbt.insert(x, y);
 	}print_tree(rbt.root);
 
 
 	cout<<endl;
 	cout << test << endl;
-	cout << rbt.rbtree_lookup(test) << endl;
+	cout << rbt.search(test) << endl;
 	cout<<endl;
 
 
 	for (int i = 0; i < 170; i++)
 	{
 		int x = getNumBetween10to99();
-		rbt.rbtree_delete(x);
+		rbt.erase(x);
 	}print_tree(rbt.root);
 	
 
