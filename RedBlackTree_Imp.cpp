@@ -6,7 +6,7 @@ using namespace std;
 
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)
-//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)還有關於duplicated keys: 餵入的東西的特徵要是獨一無二  ex:單字,時間,空間,身分證字號  甚至可用前兩位元納入這四個東西
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)
