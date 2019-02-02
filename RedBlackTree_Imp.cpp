@@ -1,318 +1,357 @@
-﻿//https://github.com/zyi23/Red-Black-Tree/blob/master/rbtree.cpp
 #include "stdafx.h"
 #include <iostream>
-#include <iomanip>
+#include <ctime>
+#define INDENT_STEP  4
 using namespace std;
-template <class T>
-class rbtree;
-//----------------------------------------------------------
-template <class T>
-struct _rbTreeNode
-{
-	friend class rbtree<T>;
 
-private:
-	T key;
-	_rbTreeNode<T> *dir[2]; // 0:left  1:right
-	_rbTreeNode<T> *parent;
-	bool color;	// true:red   false:black
-};
-//----------------------------------------------------------
-template <class T>
-class rbtree
+typedef struct rbtree_node
 {
 private:
-	void Rotate(  _rbTreeNode<T> * ,bool bDir);//true:left rotate    false: right rotate
-	void rbDeleteFixup(  _rbTreeNode<T> * );
-	void rbInsertFixup( _rbTreeNode<T> * );
-	_rbTreeNode<T> *treeSuccessor(  _rbTreeNode<T> * );
-	_rbTreeNode<T> *nil;//null node
+	bool color;//0:red , 1:black
 
 public:
-	rbtree()
-		:nil( new _rbTreeNode<T> ), root( nil ) //root must below nil in class declaration
-	{ 
-		nil->dir[0] = 0; 
-		nil->dir[1] = 0; 
-		nil->parent = 0; 
-		nil->color = false; 
-	}
+	int key,value;
+	rbtree_node *dir[2], *parent;
+	bool clr() { return this == NULL ? true : color; }
+	void clr(bool c) { color = c; }
+}*node;
 
-	void erase(T key);
-	void insert(T key);
-	void display( _rbTreeNode<T> * x );
-	_rbTreeNode<T> *root;//public for display
-	_rbTreeNode<T> *search( T key );
+
+class RBTree
+{
+public:
+	rbtree_node *root;
+	RBTree(){this->root = NULL;}
+	int rbtree_lookup(int);
+	void rbtree_insert(int,int);
+	void rbtree_delete(int);
+
+private:
+	node new_node(int,int);
+	node maximum_node(node);
+	void replace_node(node,node);
+	void rotate(node,bool);
+	
+	node lookup_node(int);
+	void insert_cases(node);
+	void delete_cases(node);
+
+	node grandparent(node);
+	node sibling(node);
+	node uncle(node);
 };
-//----------------------------------------------------------
-template <class T>
-_rbTreeNode<T> * rbtree<T>::search( T key )
+
+//Return Grandparent of Node 
+node RBTree::grandparent(node n)
 {
-	_rbTreeNode<T> * x = root;
-
-	while( x != nil && key != x->key )
-			x = x->dir[(key > x->key)];
-
-	return x;
+	return n->parent->parent;
 }
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::erase( T key )
+
+//Return Sibling of Node 
+node RBTree::sibling(node n)
 {
-	_rbTreeNode<T> * z = search( key );
-
-	if( z != nil )
-	{
-		_rbTreeNode<T> * x = nil;
-		_rbTreeNode<T> * y = nil;
-
-		if( z->dir[0] == nil || z->dir[1] == nil )
-			y = z;
-		else
-			y = treeSuccessor( z );
-
-		if( y->dir[0] != nil )
-			x = y->dir[0];
-		else
-			x = y->dir[1];
-
-		x->parent = y->parent;
-
-		if( y->parent == nil )
-			root = x;
-		else
-		{
-			if( y == y->parent->dir[0] )
-				y->parent->dir[0] = x;
-			else
-				y->parent->dir[1] = x;
-		}
-
-		if( y != z )
-			z->key = y->key;
-		
-		cout<<"---------after erase--------"<<endl;   display(this->root);
-
-		if( y->color == false )
-			rbDeleteFixup( x );
-		
-		cout<<"---------after balance--------"<<endl;   display(this->root);
-
-		delete y;
-	}
+	return n->parent->dir[n == n->parent->dir[0]];
 }
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::insert( T key )
+
+//Return Uncle of Node 
+node RBTree::uncle(node n)
 {
-	_rbTreeNode<T>* t = new _rbTreeNode<T>;
-	t->key = key;
-	_rbTreeNode<T>* x = root;
-	_rbTreeNode<T>* y = nil;
+	return sibling(n->parent);
+}
 
-	while( x != nil )
+//Creating New Node of Reb Black Tree
+node RBTree::new_node(int k, int v)
+{
+	node result = new rbtree_node;
+	result->key = k;
+	result->value = v;
+	result->clr(false);
+	result->dir[0] = NULL;
+	result->dir[1] = NULL;
+	result->parent = NULL;
+	return result;
+}
+
+//Look Up through Node
+node RBTree::lookup_node(int key)
+{
+	node n = this->root;
+	while (n != NULL)
 	{
-		y = x;
-		x = x->dir[(key > x->key)];
+		if (key == n->key)
+			return n;
+		else
+			n = n->dir[key > n->key];
 	}
+	return n;
+}
 
-	t->parent = y;
-	if( y == nil )
-		root = t;
+//RbTree Look Up
+int RBTree::rbtree_lookup(int key)
+{
+	node n = lookup_node(key);
+	return n == NULL ? NULL : n->value;
+}
+
+//Rotate left
+void RBTree::rotate(node n, bool bDir)//bDir---false:left rotate,true:right rotate
+{
+	node N = n->dir[bDir];
+	replace_node(n, N);
+
+	n->dir[bDir] = N -> dir[!bDir];
+	if (N -> dir[!bDir] != NULL)
+		N -> dir[!bDir]->parent = n;
+	N -> dir[!bDir] = n;
+
+	n->parent = N;
+}
+
+//Replace a node
+void RBTree::replace_node(node oldn, node newn)
+{
+	if (oldn->parent == NULL)
+		this->root = newn;
 	else
-		y->dir[(t->key > y->key)] = t;
+		oldn->parent->dir[oldn != oldn->parent->dir[0]] = newn;
 
-	t->dir[0] = nil;
-	t->dir[1] = nil;
-	t->color = true;
-
-	cout<<"---------after insert--------"<<endl;   display(this->root);
-
-	rbInsertFixup( t );
-
-	cout<<"---------after balance--------"<<endl;   display(this->root);
+	if (newn != NULL)
+		newn->parent = oldn->parent;
 }
-//----------------------------------------------------------
-template <class T>
-_rbTreeNode<T> * rbtree<T>::treeSuccessor( _rbTreeNode<T> *x )
+
+//Insert node into RBTree
+void RBTree::rbtree_insert(int key, int value)
 {
-	if( x->dir[1] != nil )
+	node inserted_node = new_node(key, value);
+	if (this->root == NULL)
 	{
-		while( x->dir[0] != nil )
-			x = x->dir[0];
-		return x;
+		this->root = inserted_node;
 	}
 	else
 	{
-		_rbTreeNode<T> * y = x->parent;
-		while( y != nil && x == y->dir[1] )
+		node n = this->root;
+		while (true)
 		{
-			x = y;
-			y = y->parent;
-		}
-		return y;
-	}
-}
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::Rotate( _rbTreeNode<T> *x,bool bDir )  // x->dir[1] != nil
-{		
-	_rbTreeNode<T> * y = x->dir[bDir];
-
-	if( x->parent == nil )
-		root = y;
-	else
-		x->parent->dir[(x != x->parent->dir[0])] = y;
-
-	y->parent = x->parent;
-	x->dir[bDir] = y->dir[!bDir];
-	y->dir[!bDir]->parent = x;
-	y->dir[!bDir] = x;
-	x->parent = y;
-}
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::rbInsertFixup( _rbTreeNode<T> *z )
-{
-	while( z->parent->color)
-	{
-		bool bDir = (z->parent == z->parent->parent->dir[0]);
-
-		_rbTreeNode<T> * y = z->parent->parent->dir[bDir];
-		if( y->color)
-		{
-			z->parent->color = false;
-			y->color = false;
-			z->parent->parent->color = true;
-			z = z->parent->parent;
-		}
-		else
-		{
-			if( z == z->parent->dir[bDir] )
+			if (key == n->key)
 			{
-				z = z->parent;
-				Rotate( z,bDir );
+				n->value = value;
+				return;
 			}
-			z->parent->color = false;
-			z->parent->parent->color = true;
-			z->parent->dir[bDir]->color = false;
-			Rotate( z->parent->parent,!bDir );
-		}
-
-	}
-	root->color = false;
-}
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::rbDeleteFixup(_rbTreeNode<T> * x)
-{
-	while( x != root && x->color == false )
-	{
-		_rbTreeNode<T> * w = 0;
-		bool bDir = (x->parent->dir[0] == x);
-		w = x->parent->dir[bDir];
-
-		if(w->color)
-		{
-			w->color = false;
-			x->parent->color = true;
-			Rotate( x->parent,bDir );
-			w = x->parent->dir[bDir];
-		}
-
-		if( w->dir[!bDir]->color == false && w->dir[bDir]->color == false )
-		{
-			w->color = true;
-			x = x->parent;
-		}
-		else
-		{
-			if( w->dir[bDir]->color == false )
+			else
 			{
-				w->dir[!bDir]->color = false;
-				w->color = true;
-				Rotate( w,!bDir );
-				w = x->parent->dir[bDir];
+				if (n->dir[key > n->key] == NULL)
+				{
+					n->dir[key > n->key] = inserted_node;
+					break;
+				}
+				else
+				{
+					n = n->dir[key > n->key];
+				}
 			}
-
-			w->color = x->parent->color;
-			x->parent->color = false;
-			w->dir[bDir]->color = false;
-			Rotate( x->parent,bDir );
-			x = root;
 		}
+		inserted_node->parent = n;
 	}
-
-	x->color = false;
+	insert_cases(inserted_node);
 }
-//----------------------------------------------------------
-template <class T>
-void rbtree<T>::display( _rbTreeNode<T> * x )
+void RBTree::insert_cases(node n)
 {
-	if( root == nil )
-		cout << "Tree is empty!" << endl;
-	else
+	if (n->parent == NULL)//case 1
+		n->clr(true);
+	else if (n->parent->clr())//case 2
+		return;
+	else if (!uncle(n)->clr())//case 3
 	{
-		if( x->dir[0] != nil )
-			display( x->dir[0] );
-
-		if( x != nil )
+		n->parent->clr(true);
+		uncle(n)->clr(true);
+		grandparent(n)->clr(false);
+		insert_cases(grandparent(n));
+	}
+	else//case 4 & 5
+	{
+		//case 4
+		if (n == n->parent->dir[1] && n->parent == grandparent(n)->dir[0])
 		{
-			int wid=10;
-
-			if( x->parent != nil )
-				cout << setw(wid) << ' '<< x->parent->key;
-			else
-				cout << setw(wid)<< "  　";
-
-			cout<<endl;//-----------------------------------------
-
-			cout<< setw(wid) <<"【"<< x->key << "】";
-
-			if( x->color)
-				cout << "R";
-			else
-				cout << "B";
-
-			cout<<endl;//-----------------------------------------
-
-			if( x->dir[0] != nil )
-				cout << setw(wid/2)<< x->dir[0]->key << ' ';
-			else
-				cout << setw(wid/2)<< " 　";
-
-			if( x->dir[1] != nil )
-				cout << setw(wid)<< x->dir[1]->key << ' ';
-			else
-				cout << setw(1.5*wid)<< "　";
-
-			cout<<endl;//-----------------------------------------
+			rotate(n->parent,true);
+			n = n->dir[0];
 		}
-
-		cout << endl;
-		if( x->dir[1] != nil )
-			display( x->dir[1] );
+		else if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[1])
+		{
+			rotate(n->parent,false);
+			n = n->dir[1];
+		}
+		
+		//case 5
+		n->parent->clr(true);
+		grandparent(n)->clr(false);
+		if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[0])
+			rotate(grandparent(n),false);
+		else
+			rotate(grandparent(n),true);
 	}
 }
-//----------------------------------------------------------
+
+//Delete Node from RBTree
+void RBTree::rbtree_delete(int key)
+{
+	node child;
+	node n = lookup_node(key);
+	if (n == NULL)
+		return;
+
+	if (n->dir[0] != NULL && n->dir[1] != NULL)
+	{
+		node pred = maximum_node(n->dir[0]);
+		n->key   = pred->key;
+		n->value = pred->value;
+		n = pred;
+	}
+
+	child = n->dir[1] == NULL ? n->dir[0]  : n->dir[1];
+
+	if (n->clr())
+	{
+		n->clr(child->clr());
+		delete_cases(n);
+	}
+
+	replace_node(n, child);
+	free(n);
+}
+void RBTree::delete_cases(node n)
+{
+	if (n->parent == NULL)//case 1
+		return;
+	else if (!sibling(n)->clr())//case 2
+	{
+		n->parent->clr(false);
+		sibling(n)->clr(true);
+		rotate(n->parent,n == n->parent->dir[0]);
+	}
+	
+	//case 3
+	if (n->parent->clr() && 
+		sibling(n)->clr() &&
+		sibling(n)->dir[0]->clr() && 
+		sibling(n)->dir[1]->clr())
+	{
+		sibling(n)->clr(false);
+		delete_cases(n->parent);
+	}
+	//case 4
+	else if (!n->parent->clr() && 
+		sibling(n)->clr() &&
+		sibling(n)->dir[0]->clr() && 
+		sibling(n)->dir[1]->clr())
+	{
+		sibling(n)->clr(false);
+		n->parent->clr(true);
+	}
+	else//case 5&6
+	{
+		//case 5
+		for(int b=0;b<=1;b++)
+		{
+			if (n == n->parent->dir[b] && 
+				sibling(n)->clr() &&
+				!sibling(n)->dir[b]->clr() && 
+				sibling(n)->dir[!b]->clr())
+			{
+				sibling(n)->clr(false);
+				sibling(n)->dir[b]->clr(true);
+				rotate(sibling(n),b);
+				break;
+			}
+		}
+		
+		//case 6
+		sibling(n)->clr(n->parent->clr());
+		n->parent->clr(true);
+
+		bool flag = (n == n->parent->dir[0]);
+		sibling(n)->dir[flag]->clr(true);
+		rotate(n->parent,flag);
+	}
+}
+
+//Returns Maximum node
+node RBTree::maximum_node(node n)
+{
+	while (n->dir[1] != NULL)
+		n = n->dir[1];
+	return n;
+}
+
+//Print RBTRee
+void print_tree_helper(node n, int indent)
+{
+	if (n == NULL)
+	{
+		fputs("<empty tree>", stdout);
+		return;
+	}
+
+	if (n->dir[1] != NULL)
+		print_tree_helper(n->dir[1], indent + INDENT_STEP);
+
+	for(int i = 0; i < indent; i++)
+		fputs(" ", stdout);
+
+	if (n->clr())
+		cout<<"b";
+
+
+	cout<<n->key<<endl;
+
+	if (n->dir[0] != NULL)
+		print_tree_helper(n->dir[0], indent + INDENT_STEP);
+}
+void print_tree(node n)
+{
+	print_tree_helper(n, 0);
+	puts("");
+}
+
+int getNumBetween10to99()
+{
+	static bool flag = true;
+	if(flag)
+	{
+		srand(time(NULL));//for rand()
+		flag = false;
+	}
+	return rand() % 90 + 10;
+}
+
+//Main Contains Menu
 int main()
 {
-	rbtree<int> test;
+	RBTree rbt;
 
-	test.insert(5);
-	test.insert(6);
-	test.insert(7);
-	test.insert(4);
-	test.insert(3);
-	test.insert(2);
 
-	test.erase(6);
-	test.erase(5);
-	test.erase(4);
-	test.erase(2);
-	test.erase(3);
+	int test =  -1;
+	for (int i = 0; i < 120; i++)
+	{
+		int x = getNumBetween10to99();
+		int y = x*10;
+		test = x;
+		rbt.rbtree_insert(x, y);
+	}print_tree(rbt.root);
+
+
+	cout<<endl;
+	cout << test << endl;
+	cout << rbt.rbtree_lookup(test) << endl;
+	cout<<endl;
+
+
+	for (int i = 0; i < 170; i++)
+	{
+		int x = getNumBetween10to99();
+		rbt.rbtree_delete(x);
+	}print_tree(rbt.root);
+	
 
 	system("pause");
 	return 0;
 }
-//----------------------------------------------------------
