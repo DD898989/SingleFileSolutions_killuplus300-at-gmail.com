@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include <iostream>
 #include <ctime>
+#include <vector>
+#include <algorithm>
 #define INDENT_STEP  4
 using namespace std;
 
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)還有關於duplicated keys: 餵入的東西的特徵要是獨一無二  ex:單字,時間,空間,身分證字號  甚至可用前兩位元納入這四個東西
-//記得寫 template、check valid tree、test search(vector)
-//記得寫 template、check valid tree、test search(vector)
+//記得寫 template、check valid tree、test search(vector)還有因為紅黑樹跟字典樹相銃康  所以無法共存
+//記得寫 template、check valid tree、test search(vector)你在字典樹  是不是不用浪費空間? 指向null就好這樣??
 //記得寫 template、check valid tree、test search(vector)
 //記得寫 template、check valid tree、test search(vector)
 
@@ -335,11 +337,69 @@ int getNumBetween10to99()
 	return rand() % 90 + 10;
 }
 
+
+
+struct node2
+{
+	node2 *parent;
+	bool clr;
+	int key,value;
+	int dir[2];
+	int level;
+	int includeMehowmanyBlacck;
+};
+
+
+vector<node2> vec;
+void traversal(node* p,bool root,node2* parent=NULL)
+{
+	static int level;
+	if(root){vec.clear();level=0;}
+
+	if (!p) {return;}
+	level++;
+	//cout << p->key<<"["<<level<<"]"<<",";    // 先輸出樹根
+
+
+	node2* add=  new node2;
+	if(!root)
+		add->parent = parent;
+	add->clr=p->clr();
+
+	if(level==1)
+		add->includeMehowmanyBlacck=0;
+	else
+		add->includeMehowmanyBlacck=add->parent->includeMehowmanyBlacck;
+	if(add->clr)
+		add->includeMehowmanyBlacck++;
+
+
+	add->key=p->key;
+	add->level=level;
+	add->value=p->value;
+	if(p->dir[0]==NULL)
+		add->dir[0]=-1;
+	else
+		add->dir[0]=p->dir[0]->clr();
+	if(p->dir[1]==NULL)
+		add->dir[1]=-1;
+	else
+		add->dir[1]=p->dir[1]->clr();
+	vec.push_back(*add);
+
+
+
+	traversal(p->dir[0],false,add); // 次輸出左子樹
+    traversal(p->dir[1],false,add);// 後輸出右子樹
+	level--;
+}
+
+
+
 //Main Contains Menu
 int main()
 {
 	RBTree rbt;
-
 
 	int test =  -1;
 	for (int i = 0; i < 120; i++)
@@ -349,6 +409,46 @@ int main()
 		test = x;
 		rbt.insert(x, y);
 	}print_tree(rbt.root);
+
+
+
+	//-------------------------------
+	traversal(rbt.root,true);
+	//-------------------------------
+	vector<node2> ve2(vec);
+	for(int i=ve2.size()-1;i>=0;i--)
+		if(ve2[i].dir[0]!=-1||ve2[i].dir[1]!=-1)
+			ve2.erase(ve2.begin() + i);
+	auto max = max_element( ve2.begin(), ve2.end(), []( const node2 &a, const node2 &b ) {return a.level < b.level;} )->level; 
+	auto min = min_element( ve2.begin(), ve2.end(), []( const node2 &a, const node2 &b ) {return a.level < b.level;} )->level; 
+	if(min*2>=max)
+		cout<<"ok"<<endl;
+	if(rbt.root->clr()==true)
+		cout<<"ok"<<endl;
+	cout<<ve2.front().includeMehowmanyBlacck<<endl;
+	cout<<ve2.back().includeMehowmanyBlacck<<endl;
+	for (vector<node2>::iterator it=ve2.begin(); it != ve2.end()-1; ++it)
+	{
+		if(it->includeMehowmanyBlacck!=(it+1)->includeMehowmanyBlacck)
+			cout<<"no ok"<<endl;
+	}
+
+	vector<node2> ve3(vec);
+	for(int i=ve3.size()-1;i>=0;i--)
+	{//這邊一定要大括弧
+		if(ve3[i].clr!=0)
+			ve3.erase(ve3.begin() + i);
+	}
+	for (vector<node2>::iterator it=ve3.begin(); it != ve3.end(); ++it)
+	{
+		if(it->dir[0]==0)
+			cout<<"no ok"<<endl;
+		if(it->dir[1]==0)
+			cout<<"no ok"<<endl;
+	}
+	//-------------------------------
+
+
 
 
 	cout<<endl;
