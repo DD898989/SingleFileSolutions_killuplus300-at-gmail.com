@@ -21,6 +21,7 @@ public:
 	bool get_clr() { return this == NULL ? true : color; }
 	void set_clr(bool c) { color = c; }
 };
+
 struct Node_Check
 {
 	Node_Check *parent;
@@ -110,12 +111,12 @@ public:
 	{
 		traversal(this->_root,true);
 
-		//_root must be black
+		//rule 1: _root must be black
 		if(!this->_root->get_clr())
 			return false;
 
 
-		//start from any node to its any descendant node must passed same count of black nodes~~~~~~not exact checked
+		//rule 2: start from any node to its any descendant node must passed same count of black nodes~~~~~~not exact checked
 		vector<Node_Check> vec_leaves(_all);
 		for(int i=vec_leaves.size()-1;i>=0;i--)
 		{
@@ -129,7 +130,7 @@ public:
 		}
 
 
-		//red node must have two black chindren
+		//rule 3: red node must have two black chindren
 		for(int i=_all.size()-1;i>=0;i--)
 		{
 			if(_all[i].clr==0)
@@ -348,35 +349,32 @@ private:
 	void traversal(Node<T>* p,bool bStart,Node_Check* parent=NULL)
 	{
 		static int level;
+		Node_Check* node_add;
+
+		if (p == NULL) 
+			return;
+
+		node_add =  new Node_Check;
 
 		if(bStart)
 		{
 			_all.clear();
-			level=0;
+			level = 0;
+			node_add->blackPathed=0;
+		}
+		else
+		{
+			node_add->parent = parent;
+			node_add->blackPathed=node_add->parent->blackPathed;
 		}
 
-		if (!p) 
-			return;
-
-		level++;
+		
+		node_add->level = ++level;
 		//cout << p->key<<"["<<level<<"]"<<",";
-
-		Node_Check* node_add=  new Node_Check;
-
-		if(!bStart)
-			node_add->parent = parent;
-
-		node_add->clr=p->get_clr();
-
-		if(level==1)
-			node_add->blackPathed=0;
-		else
-			node_add->blackPathed=node_add->parent->blackPathed;
+		node_add->clr = p->get_clr();
 
 		if(node_add->clr)
 			node_add->blackPathed++;
-
-		node_add->level=level;
 
 		if(p->dir[0]==NULL)
 			node_add->dir[0]=-1;
