@@ -6,327 +6,317 @@
 #define INDENT_STEP  4
 using namespace std;
 
-////////////////////////很多函數應該放進class
 //還有關於duplicated keys: 餵入的東西的特徵要是獨一無二  ex:單字,時間,空間,身分證字號  甚至可用前兩位元納入這四個東西
 //還有因為紅黑樹跟字典樹相銃康  所以無法共存
 //你在字典樹  是不是不用浪費空間? 指向null就好這樣??
+//Node 不能由code直接存取  而是RBT內部做存取  要怎麼做??
+//只有color有get太奇怪  照理來說每個都要有  所以這邊考慮用friend class 可是怎麼用呢
 
-template <class T>
-class RBTree;
-
-template <class T>
-struct node
+template <class T> struct Node
 {
-	friend class RBTree<T>;
+	//friend class RBTree<T>;
 
 private:
-	bool color;//0:red , 1:black
+	bool color;//0:red , 1:black      set private because of get_clr()
 
 public:
 	int key;
 	T value;
-	node *dir[2], *parent;
-	bool clr() { return this == NULL ? true : color; }
-	void clr(bool c) { color = c; }
+	Node *dir[2], *parent;
+	bool get_clr() { return this == NULL ? true : color; }
+	void set_clr(bool c) { color = c; }
 };
 
-template <class T>
-class RBTree
+template <class T> class RBTree
 {
 public:
-	node<T> *root;
-	RBTree<T>(){this->root = NULL;}
-	void insert(int,T);
-	void erase(int);
-	node<T>* search_node(int);
-
-private:
-	node<T>* new_node(int,T);
-	node<T>* maximum_node(node<T>*);
-	void replace_node(node<T>*,node<T>*);
-	void rotate(node<T>*,bool);
-
-	void insert_cases(node<T>*);
-	void erase_cases(node<T>*);
-
-	node<T>* grandparent(node<T>*);
-	node<T>* sibling(node<T>*);
-	node<T>* uncle(node<T>*);
-};
-
-template <class T>
-node<T>* RBTree<T>::grandparent(node<T>* n)
-{
-	return n->parent->parent;
-}
-
-template <class T>
-node<T>* RBTree<T>::sibling(node<T>* n)
-{
-	return n->parent->dir[n == n->parent->dir[0]];
-}
-
-template <class T>
-node<T>* RBTree<T>::uncle(node<T>* n)
-{
-	return sibling(n->parent);
-}
-
-template <class T>
-node<T>* RBTree<T>::new_node(int k, T v)
-{
-	node<T>* result = new node<T>;
-	result->key = k;
-	result->value = v;
-	result->clr(false);
-	result->dir[0] = NULL;
-	result->dir[1] = NULL;
-	result->parent = NULL;
-	return result;
-}
-
-template <class T>
-node<T>* RBTree<T>::search_node(int key)
-{
-	node<T>* n = this->root;
-	while (n != NULL)
+	RBTree<T>(){this->_root = NULL;}
+	void insert(int key, T value)
 	{
-		if (key == n->key)
-			return n;
-		else
-			n = n->dir[key > n->key];
-	}
-	return n;
-}
-
-template <class T>
-void RBTree<T>::replace_node(node<T>* oldn, node<T>* newn)//replace a node
-{
-	if (oldn->parent == NULL)
-		this->root = newn;
-	else
-		oldn->parent->dir[oldn != oldn->parent->dir[0]] = newn;
-
-	if (newn != NULL)
-		newn->parent = oldn->parent;
-}
-
-template <class T>
-void RBTree<T>::rotate(node<T>* n, bool bDir)//bDir---false:left rotate,true:right rotate
-{
-	node<T>* N = n->dir[bDir];
-	replace_node(n, N);
-
-	node<T>* temp = N->dir[!bDir];
-
-	n->dir[bDir] = temp;
-	if (temp != NULL)
-		temp->parent = n;
-	N->dir[!bDir] = n;
-
-	n->parent = N;
-}
-
-template <class T>
-node<T>* RBTree<T>::maximum_node(node<T>* n)//returns maximum node
-{
-	while (n->dir[1] != NULL)
-		n = n->dir[1];
-	return n;
-}
-
-template <class T>
-void RBTree<T>::insert_cases(node<T>* n)
-{
-	if (n->parent == NULL)//case 1
-		n->clr(true);
-	else if (n->parent->clr())//case 2
-		return;
-	else if (!uncle(n)->clr())//case 3
-	{
-		n->parent->clr(true);
-		uncle(n)->clr(true);
-		grandparent(n)->clr(false);
-		insert_cases(grandparent(n));
-	}
-	else//case 4 & 5
-	{
-		//case 4
-		if (n == n->parent->dir[1] && n->parent == grandparent(n)->dir[0])
+		Node<T>* inserted_node = NULL;
+		if (this->_root == NULL)
 		{
-			rotate(n->parent,true);
-			n = n->dir[0];
+			inserted_node =  new_node(key, value);
+			this->_root = inserted_node;
 		}
-		else if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[1])
-		{
-			rotate(n->parent,false);
-			n = n->dir[1];
-		}
-
-		//case 5
-		n->parent->clr(true);
-		grandparent(n)->clr(false);
-		if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[0])
-			rotate(grandparent(n),false);
 		else
-			rotate(grandparent(n),true);
-	}
-}
-template <class T>
-void RBTree<T>::insert(int key, T value)
-{
-	node<T>* inserted_node = NULL;
-	if (this->root == NULL)
-	{
-		inserted_node =  new_node(key, value);
-		this->root = inserted_node;
-	}
-	else
-	{
-		node<T>* n = this->root;
-		while (true)
 		{
-			if (key == n->key)
+			Node<T>* n = this->_root;
+			while (true)
 			{
-				n->value = value;
-				return;
-			}
-			else
-			{
-				if (n->dir[key > n->key] == NULL)
+				if (key == n->key)
 				{
-					inserted_node =  new_node(key, value);
-					n->dir[key > n->key] = inserted_node;
-					break;
+					n->value = value;
+					return;
 				}
 				else
 				{
-					n = n->dir[key > n->key];
+					if (n->dir[key > n->key] == NULL)
+					{
+						inserted_node =  new_node(key, value);
+						n->dir[key > n->key] = inserted_node;
+						break;
+					}
+					else
+					{
+						n = n->dir[key > n->key];
+					}
 				}
 			}
+			inserted_node->parent = n;
 		}
-		inserted_node->parent = n;
+		insert_cases(inserted_node);
 	}
-	insert_cases(inserted_node);
-}
+	void erase(int key)
+	{
+		Node<T>* child;
+		Node<T>* n = search_node(key);
+		if (n == NULL)
+			return;
 
-template <class T>
-void RBTree<T>::erase_cases(node<T>* n)
-{
-	if (n->parent == NULL)//case 1
-	{
-		return;
-	}
-	else if (!sibling(n)->clr())//case 2
-	{
-		n->parent->clr(false);
-		sibling(n)->clr(true);
-		rotate(n->parent,n == n->parent->dir[0]);
-	}
-
-	//case 3
-	if (n->parent->clr() && 
-		sibling(n)->clr() &&
-		sibling(n)->dir[0]->clr() && 
-		sibling(n)->dir[1]->clr())
-	{
-		sibling(n)->clr(false);
-		erase_cases(n->parent);
-	}
-	//case 4
-	else if (!n->parent->clr() && 
-		sibling(n)->clr() &&
-		sibling(n)->dir[0]->clr() && 
-		sibling(n)->dir[1]->clr())
-	{
-		sibling(n)->clr(false);
-		n->parent->clr(true);
-	}
-	else//case 5&6
-	{
-		//case 5
-		for(int b=0;b<=1;b++)
+		if (n->dir[0] != NULL && n->dir[1] != NULL)
 		{
-			if (n == n->parent->dir[b] && 
-				sibling(n)->clr() &&
-				!sibling(n)->dir[b]->clr() && 
-				sibling(n)->dir[!b]->clr())
-			{
-				sibling(n)->clr(false);
-				sibling(n)->dir[b]->clr(true);
-				rotate(sibling(n),b);
-				break;
-			}
+			Node<T>* pred = maximum_node(n->dir[0]);
+			n->key   = pred->key;
+			n->value = pred->value;
+			n = pred;
 		}
 
-		//case 6
-		sibling(n)->clr(n->parent->clr());
-		n->parent->clr(true);
+		child = n->dir[1] == NULL ? n->dir[0]  : n->dir[1];
 
-		bool flag = (n == n->parent->dir[0]);
-		sibling(n)->dir[flag]->clr(true);
-		rotate(n->parent,flag);
+		if (n->get_clr())
+		{
+			n->set_clr(child->get_clr());
+			erase_cases(n);
+		}
+
+		replace_node(n, child);
+		free(n);
 	}
-}
-template <class T>
-void RBTree<T>::erase(int key)
-{
-	node<T>* child;
-	node<T>* n = search_node(key);
-	if (n == NULL)
-		return;
-
-	if (n->dir[0] != NULL && n->dir[1] != NULL)
+	Node<T>* search_node(int key)
 	{
-		node<T>* pred = maximum_node(n->dir[0]);
-		n->key   = pred->key;
-		n->value = pred->value;
-		n = pred;
+		Node<T>* n = this->_root;
+		while (n != NULL)
+		{
+			if (key == n->key)
+				return n;
+			else
+				n = n->dir[key > n->key];
+		}
+		return n;
 	}
-
-	child = n->dir[1] == NULL ? n->dir[0]  : n->dir[1];
-
-	if (n->clr())
+	Node<T>* get_root(){return this->_root;}//for checking valid rbt
+	void print_tree(Node<T>* n)
 	{
-		n->clr(child->clr());
-		erase_cases(n);
+		print_tree_helper(n, 0);
+		puts("");
 	}
-
-	replace_node(n, child);
-	free(n);
-}
-
-
-template <class T>
-void print_tree(node<T>* n)
+	void checkValidRBT(RBTree<T> &rbt)
 {
-	print_tree_helper(n, 0);
-	puts("");
-}
-template <class T>
-void print_tree_helper(node<T>* n, int indent)
-{
-	if (n == NULL)
+	traversal(rbt.get_root(),true);
+	if(rbt.get_root()->get_clr())//_root一定是黑色。
+	{}
+	else
+		cout<<"no ok"<<endl;
+	vector<node_check> ve2(vec);//站在任何一個Node上，所有從該Node走到其任意descendant leaf的path上之黑色Node數必定相同~~~~~~不完全版驗證
+	for(int i=ve2.size()-1;i>=0;i--)
+		if(ve2[i].dir[0]!=-1||ve2[i].dir[1]!=-1)
+			ve2.erase(ve2.begin() + i);
+	//cout<<ve2.front().includeMehowmanyBlacck<<endl;
+	//cout<<ve2.back().includeMehowmanyBlacck<<endl;
+	for (vector<node_check>::iterator it=ve2.begin(); it != ve2.end()-1; ++it)
 	{
-		fputs("<empty tree>", stdout);
-		return;
+		if(it->includeMehowmanyBlacck!=(it+1)->includeMehowmanyBlacck)
+			cout<<"no ok"<<endl;
+	}
+	vector<node_check> ve3(vec);//如果某個Node是紅色，那麼其兩個child必定是黑色，不能有兩個紅色Node相連
+	for(int i=ve3.size()-1;i>=0;i--)
+	{
+		if(ve3[i].clr!=0)
+			ve3.erase(ve3.begin() + i);
+	}
+	for (vector<node_check>::iterator it=ve3.begin(); it != ve3.end(); ++it)
+	{
+		if(it->dir[0]==0)
+			cout<<"no ok"<<endl;
+		if(it->dir[1]==0)
+			cout<<"no ok"<<endl;
+	}
+}
+
+private:
+	Node<T>* _root;
+	Node<T>* grandparent(Node<T>* n)
+	{
+		return n->parent->parent;
+	}
+	Node<T>* sibling(Node<T>* n)
+	{
+		return n->parent->dir[n == n->parent->dir[0]];
+	}
+	Node<T>* uncle(Node<T>* n)
+	{
+		return sibling(n->parent);
+	}
+	Node<T>* new_node(int k, T v)
+	{
+		Node<T>* result = new Node<T>;
+		result->key = k;
+		result->value = v;
+		result->set_clr(false);
+		result->dir[0] = NULL;
+		result->dir[1] = NULL;
+		result->parent = NULL;
+		return result;
+	}
+	Node<T>* maximum_node(Node<T>* n)//returns maximum Node
+	{
+		while (n->dir[1] != NULL)
+			n = n->dir[1];
+		return n;
+	}
+	void replace_node(Node<T>* oldn, Node<T>* newn)//replace a Node
+	{
+		if (oldn->parent == NULL)
+			this->_root = newn;
+		else
+			oldn->parent->dir[oldn != oldn->parent->dir[0]] = newn;
+
+		if (newn != NULL)
+			newn->parent = oldn->parent;
+	}
+	void rotate(Node<T>* n, bool bDir)//bDir---false:left rotate,true:right rotate
+	{
+		Node<T>* N = n->dir[bDir];
+		replace_node(n, N);
+
+		Node<T>* temp = N->dir[!bDir];
+
+		n->dir[bDir] = temp;
+		if (temp != NULL)
+			temp->parent = n;
+		N->dir[!bDir] = n;
+
+		n->parent = N;
+	}
+	void insert_cases(Node<T>* n)
+	{
+		if (n->parent == NULL)//case 1
+			n->set_clr(true);
+		else if (n->parent->get_clr())//case 2
+			return;
+		else if (!uncle(n)->get_clr())//case 3
+		{
+			n->parent->set_clr(true);
+			uncle(n)->set_clr(true);
+			grandparent(n)->set_clr(false);
+			insert_cases(grandparent(n));
+		}
+		else//case 4 & 5
+		{
+			//case 4
+			if (n == n->parent->dir[1] && n->parent == grandparent(n)->dir[0])
+			{
+				rotate(n->parent,true);
+				n = n->dir[0];
+			}
+			else if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[1])
+			{
+				rotate(n->parent,false);
+				n = n->dir[1];
+			}
+
+			//case 5
+			n->parent->set_clr(true);
+			grandparent(n)->set_clr(false);
+			if (n == n->parent->dir[0] && n->parent == grandparent(n)->dir[0])
+				rotate(grandparent(n),false);
+			else
+				rotate(grandparent(n),true);
+		}
+	}
+	void erase_cases(Node<T>* n)
+	{
+		if (n->parent == NULL)//case 1
+		{
+			return;
+		}
+		else if (!sibling(n)->get_clr())//case 2
+		{
+			n->parent->set_clr(false);
+			sibling(n)->set_clr(true);
+			rotate(n->parent,n == n->parent->dir[0]);
+		}
+
+		//case 3
+		if (n->parent->get_clr() && 
+			sibling(n)->get_clr() &&
+			sibling(n)->dir[0]->get_clr() && 
+			sibling(n)->dir[1]->get_clr())
+		{
+			sibling(n)->set_clr(false);
+			erase_cases(n->parent);
+		}
+		//case 4
+		else if (!n->parent->get_clr() && 
+			sibling(n)->get_clr() &&
+			sibling(n)->dir[0]->get_clr() && 
+			sibling(n)->dir[1]->get_clr())
+		{
+			sibling(n)->set_clr(false);
+			n->parent->set_clr(true);
+		}
+		else//case 5&6
+		{
+			//case 5
+			for(int b=0;b<=1;b++)
+			{
+				if (n == n->parent->dir[b] && 
+					sibling(n)->get_clr() &&
+					!sibling(n)->dir[b]->get_clr() && 
+					sibling(n)->dir[!b]->get_clr())
+				{
+					sibling(n)->set_clr(false);
+					sibling(n)->dir[b]->set_clr(true);
+					rotate(sibling(n),b);
+					break;
+				}
+			}
+
+			//case 6
+			sibling(n)->set_clr(n->parent->get_clr());
+			n->parent->set_clr(true);
+
+			bool flag = (n == n->parent->dir[0]);
+			sibling(n)->dir[flag]->set_clr(true);
+			rotate(n->parent,flag);
+		}
 	}
 
-	if (n->dir[1] != NULL)
-		print_tree_helper(n->dir[1], indent + INDENT_STEP);
+	void print_tree_helper(Node<T>* n, int indent)
+	{
+		if (n == NULL)
+		{
+			fputs("<empty tree>", stdout);
+			return;
+		}
 
-	for(int i = 0; i < indent; i++)
-		fputs(" ", stdout);
+		if (n->dir[1] != NULL)
+			print_tree_helper(n->dir[1], indent + INDENT_STEP);
 
-	if (n->clr())
-		cout<<"b";
+		for(int i = 0; i < indent; i++)
+			fputs(" ", stdout);
+
+		if (n->get_clr())
+			cout<<"b";
 
 
-	cout<<n->key<<endl;
+		cout<<n->key<<endl;
 
-	if (n->dir[0] != NULL)
-		print_tree_helper(n->dir[0], indent + INDENT_STEP);
-}
+		if (n->dir[0] != NULL)
+			print_tree_helper(n->dir[0], indent + INDENT_STEP);
+	}
+};
 
 int getNumBetween10to99()
 {
@@ -350,11 +340,11 @@ struct node_check
 };
 
 vector<node_check> vec;
-template <class T>
-void traversal(node<T>* p,bool root,node_check* parent=NULL)
+
+template <class T> void traversal(Node<T>* p,bool _root,node_check* parent=NULL)
 {
 	static int level;
-	if(root){vec.clear();level=0;}
+	if(_root){vec.clear();level=0;}
 
 	if (!p) {return;}
 	level++;
@@ -362,9 +352,9 @@ void traversal(node<T>* p,bool root,node_check* parent=NULL)
 
 
 	node_check* add=  new node_check;
-	if(!root)
+	if(!_root)
 		add->parent = parent;
-	add->clr=p->clr();
+	add->clr=p->get_clr();
 
 	if(level==1)
 		add->includeMehowmanyBlacck=0;
@@ -380,11 +370,11 @@ void traversal(node<T>* p,bool root,node_check* parent=NULL)
 	if(p->dir[0]==NULL)
 		add->dir[0]=-1;
 	else
-		add->dir[0]=p->dir[0]->clr();
+		add->dir[0]=p->dir[0]->get_clr();
 	if(p->dir[1]==NULL)
 		add->dir[1]=-1;
 	else
-		add->dir[1]=p->dir[1]->clr();
+		add->dir[1]=p->dir[1]->get_clr();
 	vec.push_back(*add);
 
 
@@ -392,40 +382,6 @@ void traversal(node<T>* p,bool root,node_check* parent=NULL)
 	traversal(p->dir[0],false,add); // 次輸出左子樹
 	traversal(p->dir[1],false,add);// 後輸出右子樹
 	level--;
-}
-
-template <class T>
-void CheckValidRBT(RBTree<T> &rbt)
-{
-	traversal(rbt.root,true);
-	if(rbt.root->clr()==true)//root一定是黑色。
-	{}
-	else
-		cout<<"no ok"<<endl;
-	vector<node_check> ve2(vec);//站在任何一個node上，所有從該node走到其任意descendant leaf的path上之黑色node數必定相同~~~~~~不完全版驗證
-	for(int i=ve2.size()-1;i>=0;i--)
-		if(ve2[i].dir[0]!=-1||ve2[i].dir[1]!=-1)
-			ve2.erase(ve2.begin() + i);
-	//cout<<ve2.front().includeMehowmanyBlacck<<endl;
-	//cout<<ve2.back().includeMehowmanyBlacck<<endl;
-	for (vector<node_check>::iterator it=ve2.begin(); it != ve2.end()-1; ++it)
-	{
-		if(it->includeMehowmanyBlacck!=(it+1)->includeMehowmanyBlacck)
-			cout<<"no ok"<<endl;
-	}
-	vector<node_check> ve3(vec);//如果某個node是紅色，那麼其兩個child必定是黑色，不能有兩個紅色node相連
-	for(int i=ve3.size()-1;i>=0;i--)
-	{
-		if(ve3[i].clr!=0)
-			ve3.erase(ve3.begin() + i);
-	}
-	for (vector<node_check>::iterator it=ve3.begin(); it != ve3.end(); ++it)
-	{
-		if(it->dir[0]==0)
-			cout<<"no ok"<<endl;
-		if(it->dir[1]==0)
-			cout<<"no ok"<<endl;
-	}
 }
 
 int main()//testing
@@ -439,26 +395,26 @@ int main()//testing
 		int x = getNumBetween10to99(); test = x;
 		double y = x+(double)x/100;
 		rbt.insert(x, y);
-		CheckValidRBT(rbt);
-	}print_tree(rbt.root);
+		rbt.checkValidRBT(rbt);
+	}rbt.print_tree(rbt.get_root());
 
-	
+
 	//print existing 
 	cout << endl;
 	cout << test << endl;
 	cout << rbt.search_node(test)->value << endl;
 	cout << endl;
 
-	
+
 	//loop delete
 	for (int i = 0; i < 170; i++)
 	{
 		int x = getNumBetween10to99(); test = x;
 		rbt.erase(x);
-		CheckValidRBT(rbt);
-	}print_tree(rbt.root);
+		rbt.checkValidRBT(rbt);
+	}rbt.print_tree(rbt.get_root());
 
-	
+
 	//print non-existing 
 	cout<<endl;
 	cout << test << endl;
@@ -468,11 +424,11 @@ int main()//testing
 		cout << rbt.search_node(test) << endl;
 	cout<<endl;
 
-	
+
 	//print existing 
 	cout << endl;
-	cout << rbt.root->key << endl;
-	cout << rbt.search_node(rbt.root->key)->value << endl;
+	cout << rbt.get_root()->key << endl;
+	cout << rbt.search_node(rbt.get_root()->key)->value << endl;
 	cout << endl;
 
 
