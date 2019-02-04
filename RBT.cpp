@@ -1,4 +1,4 @@
-//edited from https://www.sanfoundry.com/cpp-program-implement-red-black-tree/
+//rewritten from https://www.sanfoundry.com/cpp-program-implement-red-black-tree/
 
 #include "stdafx.h"
 #include <iostream>
