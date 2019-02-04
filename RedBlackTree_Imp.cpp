@@ -408,12 +408,12 @@ int getNumBetween10to99()
 int main()//testing
 {
 	RBTree<double> rbt;
-	int test =  -1;
+	int testKey =  -1;
 
 	//loop insert
 	for (int i = 0; i < 120; i++)
 	{
-		int x = getNumBetween10to99(); test = x;
+		int x = getNumBetween10to99(); testKey = x;
 		double y = x+(double)x/100;
 		rbt.insert(x, y);
 		if(!rbt.checkValidTree()){
@@ -423,15 +423,15 @@ int main()//testing
 
 	//print existing 
 	cout << endl;
-	cout << test << endl;
-	cout << rbt.search_node(test)->value << endl;
+	cout << testKey << endl;
+	cout << rbt.search_node(testKey)->value << endl;
 	cout << endl;
 
 
 	//loop delete
 	for (int i = 0; i < 170; i++)
 	{
-		int x = getNumBetween10to99(); test = x;
+		int x = getNumBetween10to99(); testKey = x;
 		rbt.erase(x);
 		if(!rbt.checkValidTree()){
 			cout<<"error";system("pause");}
@@ -440,11 +440,11 @@ int main()//testing
 
 	//print non-existing 
 	cout<<endl;
-	cout << test << endl;
-	if(rbt.search_node(test)==NULL)
+	cout << testKey << endl;
+	if(rbt.search_node(testKey)==NULL)
 		cout << "NULL" << endl;
 	else
-		cout << rbt.search_node(test) << endl;
+		cout << rbt.search_node(testKey) << endl;
 	cout<<endl;
 
 
