@@ -345,6 +345,8 @@ int main4()
 	//Sorted  array:
 	//10  30  40  50  70 *80 *90
 
+	//"XX"  XX is last element of divided array
+	//
 	//           {10 80 30 90 40 50 "70"}
 	//                 /                \
 	//        {10 30 40 "50"}        {90 "80"}
