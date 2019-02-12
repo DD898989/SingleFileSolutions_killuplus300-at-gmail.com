@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <queue>
+
 using namespace std;
 
 
@@ -1106,4 +1108,115 @@ int main12()
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------all BST traversal methods
+struct TreeNode 
+{
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+};
+
+
+void PreOrder(TreeNode* t)
+{
+	if(t==NULL)
+		return;
+
+	cout<<t->val<<endl;
+	PreOrder(t->left);
+	PreOrder(t->right);
+}
+
+void InOrder(TreeNode* t)
+{
+	if(t==NULL)
+		return;
+
+	InOrder(t->left);
+	cout<<t->val<<endl;
+	InOrder(t->right);
+}
+
+void PostOrder(TreeNode* t)
+{
+	if(t==NULL)
+		return;
+
+	PostOrder(t->left);
+	PostOrder(t->right);
+	cout<<t->val<<endl;
+}
+
+//For all of these traversals - whether done recursively or iteratively - you’ll have to visit every node in the binary tree. That means that you’ll get a runtime complexity of O(n) - where n is the number of nodes in the binary tree.
+int main13()
+{
+	//				6
+	//		/				\
+	//		2				9
+	//	/		\		/
+	//	1		4		7
+	//		/		\		\
+	//		3		5		8
+	
+	TreeNode node_6; node_6.val = 6; node_6.left = NULL; node_6.right = NULL;
+	TreeNode node_2; node_2.val = 2; node_2.left = NULL; node_2.right = NULL;
+	TreeNode node_9; node_9.val = 9; node_9.left = NULL; node_9.right = NULL;
+	TreeNode node_1; node_1.val = 1; node_1.left = NULL; node_1.right = NULL;
+	TreeNode node_4; node_4.val = 4; node_4.left = NULL; node_4.right = NULL;
+	TreeNode node_7; node_7.val = 7; node_7.left = NULL; node_7.right = NULL;
+	TreeNode node_3; node_3.val = 3; node_3.left = NULL; node_3.right = NULL;
+	TreeNode node_5; node_5.val = 5; node_5.left = NULL; node_5.right = NULL;
+	TreeNode node_8; node_8.val = 8; node_8.left = NULL; node_8.right = NULL;
+	
+	node_6.left = &node_2;
+	node_6.right = &node_9;
+	
+	node_2.left = &node_1;
+	node_2.right = &node_4;
+	
+	node_4.left = &node_3;
+	node_4.right = &node_5;
+	
+	node_9.left = &node_7;
+
+	node_7.right = &node_8;
+
+	
+	cout<<"----------LEVEL---------"<<endl;
+
+	queue<TreeNode*> q;
+    q.push(&node_6);                       // 把root作為level-order traversal之起點推進queue中
+    while (!q.empty())                     // 若queue不是空的, 表示還有node沒有visiting
+    {                
+        TreeNode *current = q.front();  q.pop();    // 取出先進入queue的node
+		cout<<current->val<<endl;           // 進行visiting
+
+        if (current->left != NULL)  // 若leftchild有資料, 將其推進queue
+            q.push(current->left);
+
+        if (current->right != NULL) // 若rightchild有資料, 將其推進queue
+            q.push(current->right);
+    }
+
+
+
+	//若是把尋訪根節點、尋訪左子樹、尋訪右子樹分別記做 D、L、R
+	//前序（pre-order）		前序的尋訪順序為 D L R
+	//中序（in-order）		中序的尋訪順序為 L D R
+	//與後序（post-order）	後序的尋訪順序為 L R D
+	
+	
+	cout<<"----------PRE---------"<<endl;
+
+	PreOrder(&node_6);
+	
+	cout<<"----------IN---------"<<endl;
+
+	InOrder(&node_6);
+	
+	cout<<"----------POST---------"<<endl;
+
+	PostOrder(&node_6);
+
+	return 0;
+}
