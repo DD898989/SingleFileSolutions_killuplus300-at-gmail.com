@@ -1189,16 +1189,16 @@ int main13()
 	cout<<"----------LEVEL---------"<<endl;
 
 	queue<TreeNode*> q;
-	q.push(&node_6);                       // 把root作為level-order traversal之起點推進queue中
-	while (!q.empty())                     // 若queue不是空的, 表示還有node沒有visiting
+	q.push(&node_6);  
+	while (!q.empty())
 	{                
-		TreeNode *current = q.front();  q.pop();    // 取出先進入queue的node
-		cout<<current->val<<endl;           // 進行visiting
+		TreeNode *current = q.front();  q.pop(); 
+		cout<<current->val<<endl;
 
-		if (current->left != NULL)  // 若leftchild有資料, 將其推進queue
+		if (current->left != NULL) 
 			q.push(current->left);
 
-		if (current->right != NULL) // 若rightchild有資料, 將其推進queue
+		if (current->right != NULL)
 			q.push(current->right);
 	}
 
@@ -1207,7 +1207,7 @@ int main13()
 	//若是把尋訪根節點、尋訪左子樹、尋訪右子樹分別記做 D、L、R
 	//前序（pre-order）		前序的尋訪順序為 D L R
 	//中序（in-order）		中序的尋訪順序為 L D R
-	//與後序（post-order）	後序的尋訪順序為 L R D
+	//後序（post-order）	後序的尋訪順序為 L R D
 
 
 	cout<<"----------PRE---------"<<endl;
