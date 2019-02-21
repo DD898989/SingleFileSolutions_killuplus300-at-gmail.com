@@ -108,20 +108,14 @@ void main()
 	vector<int> A;
 
 
-
-	A.clear();
-	A.push_back(5);
-	A.push_back(2);
-	A.push_back(3);
-	A.push_back(7);
-	A.push_back(100);
+	int arr1[] = {0, 1, 2, 3, 10,12,22};
+	A = vector<int>(arr1, arr1+sizeof(arr1)/sizeof(int));
 	cout<<largestPerimeterTriangle(A)<<endl;
 	
 
-	A.clear();
-	A.push_back(3);
-	A.push_back(4);
-	A.push_back(3);
+	
+	int arr2[] = {3,4,5,1};
+	A = vector<int>(arr2, arr2+sizeof(arr2)/sizeof(int));
 	cout<<validMountainArray(A)<<endl;
 
 
