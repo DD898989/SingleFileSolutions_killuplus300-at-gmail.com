@@ -15,8 +15,8 @@ private:
 	bool color;//0:red , 1:black      set private because of get_clr(),leaf node have null children with color black
 
 public:
-	int key;
-	T value;
+	int key;//pair<int, T> pair;
+	T value;//pair<int, T> pair;
 	Node *dir[2], *parent;
 	bool get_clr() { return this == NULL ? true : color; }
 	void set_clr(bool c) { color = c; }
