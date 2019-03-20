@@ -882,17 +882,18 @@ void KruskalMST(struct Graph* graph)
 	return;
 }
 
+// MST = Minimum Spanning Tree = 最小生成樹 = 權重最小的生成樹，可能有許多種。
 // Driver program to test above functions
 int main9()
 {
 	/* Let us create following weighted graph
-	10
-	0--------1     這橫條是edge[0]
-	|  \	 |
-	6|   5\   |15	最左直條是edge[1]   斜條是edge[2]   最右直條是edge[3]
-	|	   \ |
-	2--------3     這橫條是edge[4]
-	4												*/
+        10
+    0--------1     這橫條是edge[0]
+    |  \     |
+   6|   5\   |15	最左直條是edge[1]   斜條是edge[2]   最右直條是edge[3]
+    |      \ |
+    2--------3     這橫條是edge[4]
+	    4												*/
 
 	int VV = 4; // Number of vertices in graph
 	int EE = 5; // Number of edges in graph
