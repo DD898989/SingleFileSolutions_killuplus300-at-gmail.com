@@ -883,6 +883,11 @@ void KruskalMST(struct Graph* graph)
 }
 
 // MST = Minimum Spanning Tree = 最小生成樹 = 權重最小的生成樹，可能有許多種。
+//Spanning Tree為：
+//    連結所有Graph中的vertex的樹，見圖一(b)。
+//    因為是樹，所以沒有cycle。
+//    因為是樹，若Graph有V個vertex，Spanning Tree只有|V|−1條edge。
+//有最小weight總和的Spanning Tree，稱為Minimum Spanning Tree(MST)
 // Driver program to test above functions
 int main9()
 {
