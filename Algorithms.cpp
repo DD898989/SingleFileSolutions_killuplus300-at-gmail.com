@@ -898,7 +898,7 @@ int main9()
    6|   5\   |15	最左直條是edge[1]   斜條是edge[2]   最右直條是edge[3]
     |      \ |
     2--------3     這橫條是edge[4]
-	    4												*/
+	 4												*/
 
 	int VV = 4; // Number of vertices in graph
 	int EE = 5; // Number of edges in graph
