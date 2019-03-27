@@ -103,9 +103,44 @@ bool isSameTree_LevelOrder( TreeNode* P, TreeNode* Q)//const will error
 }
 
 
+void printSpecial(vector<int> A)
+{
+	int len = A.size();
+
+	vector<int> B(len,1);
+
+	int n;
+
+	n= 1;
+	for(int i=1;i<len;i++)
+	{
+		n*=A[i-1];
+		B[i]=n;
+	}
+	
+	n= 1;
+	for(int i=len-2;i>-1;i--)
+	{
+		n*=A[i+1];
+		B[i]*=n;
+	}
+
+	for (std::vector<int>::const_iterator i = B.begin(); i != B.end(); ++i)
+		cout << *i << ' ';
+	cout<<endl;
+}
+
+
 void main()
 {
 	vector<int> A;
+
+
+	
+	int arr0[] = {2, 3, 4,5,6,7,8};
+	A = vector<int>(arr0, arr0+sizeof(arr0)/sizeof(int));
+	printSpecial(A);
+
 
 
 	int arr1[] = {0, 1, 2, 3, 10,12,22};
