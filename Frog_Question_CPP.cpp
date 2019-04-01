@@ -2,48 +2,76 @@
 //
 
 #include "stdafx.h"
+#include <cstdlib>
+
 bool Jump(int t[]);
+bool IsFinished(int t[]);
 void Print(int t[]);
 void Change(int *m, int *n);
 
 
-const int LEN = 51;
+const int LEN = 55;
+const int ROCK = 8;
 
 int main()
 {
 	int t[LEN];
 
-	for(int i=0;i<(LEN-1)/2;i++)
+	for(int i=0;i<(LEN-1);i++)
 		t[i] = 1;
 
-	t[(LEN-1)/2] = 0;
+	t[ROCK-1] = 0;
 
-	for(int i=(LEN-1)/2+1;i<LEN;i++)
+	for(int i=ROCK;i<LEN;i++)
 		t[i] = 2;
 
-	while(!Jump(t))
+	Print(t);
+
+	while(!IsFinished(t))
 	{
+		Jump(t);
 		Print(t);
 	}
+
+	system("pause");
+}
+
+
+bool IsFinished(int t[])
+{
+	if(t[0]==2 && t[LEN-1]==1)
+	{
+		int i=0;
+
+		for(;i<LEN-1;i++)
+		{
+			if(t[i]!=2) 
+			{
+				if(t[i]==0)
+					break;
+				else
+					return false;
+			}
+		}
+
+		i++;
+
+		for(;i<LEN-1;i++)
+		{
+			if(t[i]!=1)
+				return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool Jump(int t[])
 {
-
-	bool bFinished = true;
-
-	for(int i=0;i<(LEN-1)/2;i++)
-		if(t[i] != 2)
-			bFinished = false;
-
-	for(int i=(LEN-1)/2+1;i<LEN;i++)
-		if(t[i] != 1)
-			bFinished = false;
-
-	if(bFinished)
-		return true;
-
-
 	for(int i = 0;i<LEN;i++)
 	{
 		if( i<=LEN-3  &&  t[i]==1&&t[i+1]==2&&t[i+2]==0)
@@ -79,8 +107,6 @@ bool Jump(int t[])
 		}
 	}
 
-
-
 	for(int i = 0;i<LEN;i++)
 	{
 		if(
@@ -97,6 +123,7 @@ bool Jump(int t[])
 			return false;
 		}
 	}
+
 	return false;
 }
 
